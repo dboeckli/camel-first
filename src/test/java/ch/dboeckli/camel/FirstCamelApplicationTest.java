@@ -1,4 +1,4 @@
-package ch.dboeckli.template;
+package ch.dboeckli.camel;
 // TODOS: RENAME PACKAGE
 
 import lombok.extern.slf4j.Slf4j;
@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 @Slf4j
 @ActiveProfiles("local")
 // TODOS: RENAME ME
-class Spring6TemplateApplicationTest {
+class FirstCamelApplicationTest {
 
     @Autowired
     private ApplicationContext applicationContext;

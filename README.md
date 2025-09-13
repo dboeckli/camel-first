@@ -1,5 +1,7 @@
 # Spring Boot 6 Template Project
 
+## TODO: ADAPAT AND ADD PDF FROM DOC FOLDER
+
 ## Introduction
 This project serves as a template for Spring Boot 6 applications. It provides a solid foundation for quickly starting new Spring Boot projects with pre-configured settings and best practices.
 
@@ -57,7 +59,7 @@ This project serves as a template for Spring Boot 6 applications. It provides a 
 
 ### 5. Build and Deployment
 1. Trigger a rebuild in GitHub Actions.
-2. Upon successful build:
+2. Upon a successful build:
     - A Docker image will be pushed to GitHub Packages and Docker Hub.
     - Access your Docker Hub repository: https://hub.docker.com/repositories/domboeckli
     - Change the Docker Hub image visibility from private to public to unlock it.

@@ -1,4 +1,4 @@
-package ch.dboeckli.template.core;
+package ch.dboeckli.camel.core;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;

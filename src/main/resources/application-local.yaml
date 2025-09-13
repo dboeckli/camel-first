@@ -3,8 +3,7 @@ server:
 
 spring:
   application:
-    # // TODO: RENAME ME
-    name: spring-6-project-template
+    name: course-camel
   docker:
     compose:
       enabled: false

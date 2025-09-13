@@ -1,4 +1,4 @@
-package ch.dboeckli.template.test.config;
+package ch.dboeckli.camel.test.config;
 
 import org.junit.jupiter.api.ClassDescriptor;
 import org.junit.jupiter.api.ClassOrderer;

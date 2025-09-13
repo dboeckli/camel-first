@@ -5,14 +5,12 @@
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
         <version>3.5.5</version>
-        <relativePath /> <!-- lookup parent from repository -->
+        <relativePath />
     </parent>
 
-    <!-- TODO: RENAME ME -->
-    <groupId>ch.dboeckli.template</groupId>
-    <!-- TODO: RENAME ME -->
-    <artifactId>spring-6-project-template</artifactId>
-    <version>0.0.13-SNAPSHOT</version>
+    <groupId>ch.dboeckli.camel</groupId>
+    <artifactId>course-camel</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
 
     <name>${project.artifactId}</name>
     <description>${project.artifactId}</description>
@@ -41,6 +39,8 @@
 
         <docker.image.tag>development</docker.image.tag> <!-- for feature branches -->
         <docker.repo>local</docker.repo>
+
+        <camel-spring-boot-starter.version>4.14.0</camel-spring-boot-starter.version>
 
         <logbook.version>3.12.3</logbook.version>
         <logstash-logback.version>8.1</logstash-logback.version>
@@ -142,6 +142,11 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.camel.springboot</groupId>
+            <artifactId>camel-spring-boot-starter</artifactId>
+            <version>${camel-spring-boot-starter.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
