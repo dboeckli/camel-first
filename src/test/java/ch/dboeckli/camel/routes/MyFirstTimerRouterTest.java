@@ -1,5 +1,6 @@
 package ch.dboeckli.camel.routes;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.camel.CamelContext;
 import org.apache.camel.EndpointInject;
 import org.apache.camel.Route;
@@ -25,6 +26,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @ActiveProfiles("local")
 @DirtiesContext
 @MockEndpoints("log:*")
+@Slf4j
 class MyFirstTimerRouterTest {
     @Autowired
     private CamelContext camelContext;
@@ -35,11 +37,11 @@ class MyFirstTimerRouterTest {
 
     @BeforeEach
     void startOnlyDesiredRoute() throws Exception {
-        // stop all routes
+        log.info("### Stopping all routes");
         for (var route : camelContext.getRoutes()) {
             camelContext.getRouteController().stopRoute(route.getId());
         }
-        // start only the desired route
+        log.info("### Starting route: {}", MY_FIRST_ROUTE_ID);
         camelContext.getRouteController().startRoute(MY_FIRST_ROUTE_ID);
     }
 
