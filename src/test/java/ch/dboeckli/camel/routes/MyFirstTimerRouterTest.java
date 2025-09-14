@@ -7,6 +7,7 @@ import org.apache.camel.Route;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.test.spring.junit5.CamelSpringBootTest;
 import org.apache.camel.test.spring.junit5.MockEndpoints;
+import org.apache.camel.test.spring.junit5.UseAdviceWith;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +28,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @DirtiesContext
 @MockEndpoints("log:*")
 @Slf4j
+@UseAdviceWith // disables auto-start of Camel routes
 class MyFirstTimerRouterTest {
     @Autowired
     private CamelContext camelContext;
@@ -37,6 +39,8 @@ class MyFirstTimerRouterTest {
 
     @BeforeEach
     void startOnlyDesiredRoute() throws Exception {
+        camelContext.start(); // we need to start Camel before we can use it, @UseAdviceWith disables the auto-start
+
         log.info("### Stopping all routes");
         for (var route : camelContext.getRoutes()) {
             camelContext.getRouteController().stopRoute(route.getId());

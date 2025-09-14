@@ -1,11 +1,13 @@
 package ch.dboeckli.camel.routes;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.camel.CamelContext;
 import org.apache.camel.EndpointInject;
 import org.apache.camel.Route;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.test.spring.junit5.CamelSpringBootTest;
 import org.apache.camel.test.spring.junit5.MockEndpoints;
+import org.apache.camel.test.spring.junit5.UseAdviceWith;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +17,7 @@ import org.springframework.test.context.ActiveProfiles;
 
 import java.util.List;
 
+import static ch.dboeckli.camel.routes.MyFirstTimerRouter.MY_FIRST_ROUTE_ID;
 import static ch.dboeckli.camel.routes.MyThirdTimerRouter.MY_THIRD_ROUTE_ID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
@@ -25,6 +28,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @ActiveProfiles("local")
 @DirtiesContext
 @MockEndpoints("log:*")
+@Slf4j
+@UseAdviceWith // disables auto-start of Camel routes
 class MyThirdTimerRouterTest {
 
     @Autowired
@@ -36,11 +41,13 @@ class MyThirdTimerRouterTest {
 
     @BeforeEach
     void startOnlyDesiredRoute() throws Exception {
-        // stop all routes
+        camelContext.start(); // we need to start Camel before we can use it, @UseAdviceWith disables the auto-start
+
+        log.info("### Stopping all routes");
         for (var route : camelContext.getRoutes()) {
             camelContext.getRouteController().stopRoute(route.getId());
         }
-        // start only the desired route
+        log.info("### Starting route: {}", MY_THIRD_ROUTE_ID);
         camelContext.getRouteController().startRoute(MY_THIRD_ROUTE_ID);
     }
 

@@ -1,11 +1,13 @@
 package ch.dboeckli.camel.routes;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.camel.CamelContext;
 import org.apache.camel.EndpointInject;
 import org.apache.camel.Route;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.test.spring.junit5.CamelSpringBootTest;
 import org.apache.camel.test.spring.junit5.MockEndpoints;
+import org.apache.camel.test.spring.junit5.UseAdviceWith;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +27,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @ActiveProfiles("local")
 @DirtiesContext
 @MockEndpoints("log:*")
+@Slf4j
+@UseAdviceWith // disables auto-start of Camel routes
 class MyForthTimerRouterTest {
 
     @Autowired
@@ -36,11 +40,13 @@ class MyForthTimerRouterTest {
 
     @BeforeEach
     void startOnlyDesiredRoute() throws Exception {
-        // stop all routes
+        camelContext.start(); // we need to start Camel before we can use it, @UseAdviceWith disables the auto-start
+
+        log.info("### Stopping all routes");
         for (var route : camelContext.getRoutes()) {
             camelContext.getRouteController().stopRoute(route.getId());
         }
-        // start only the desired route
+        log.info("### Starting route: {}", MY_FORTH_ROUTE_ID);
         camelContext.getRouteController().startRoute(MY_FORTH_ROUTE_ID);
     }
 
