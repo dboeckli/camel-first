@@ -17,7 +17,8 @@ public class MyFirstTimerRouter extends RouteBuilder {
     public void configure() {
         from("timer:first-timer from " + MyFirstTimerRouter.class)  // timer endpoint
             .routeId(MY_FIRST_ROUTE_ID)
-            .bean(currentTime) // transform via bean
+            .bean(currentTime, "getCurrentTime") // transform via bean because bean method getCurrentTime returns a String
+            .bean(currentTime, "logCurrentTime") // process via bean because bean method logCurrentTime returns void
             .to("log:info"); // log endpoint
     }
 }
