@@ -25,7 +25,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @ActiveProfiles("local")
 @DirtiesContext
 @MockEndpoints("log:*")
-//@UseAdviceWith
 class MyFirstTimerRouterTest {
     @Autowired
     private CamelContext camelContext;
@@ -36,15 +35,11 @@ class MyFirstTimerRouterTest {
 
     @BeforeEach
     void startOnlyDesiredRoute() throws Exception {
-        // Kontext starten (Routen werden wegen @UseAdviceWith NICHT automatisch gestartet)
-        camelContext.start();
-
-        // Sicherheitsnetz: sicherstellen, dass alle Routen gestoppt sind
+        // stop all routes
         for (var route : camelContext.getRoutes()) {
             camelContext.getRouteController().stopRoute(route.getId());
         }
-
-        // NUR die gewünschte Route starten (Route-ID hier anpassen!)
+        // start only the desired route
         camelContext.getRouteController().startRoute(MY_FIRST_ROUTE_ID);
     }
 
