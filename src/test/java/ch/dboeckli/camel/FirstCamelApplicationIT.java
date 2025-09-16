@@ -17,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 @SpringBootTest(useMainMethod = SpringBootTest.UseMainMethod.ALWAYS)
 @Slf4j
 @ActiveProfiles("local")
-class FirstCamelApplicationTest {
+class FirstCamelApplicationIT {
 
     @Autowired
     private ApplicationContext applicationContext;
@@ -31,7 +31,7 @@ class FirstCamelApplicationTest {
         log.info("Testing Spring 6 Application {}", applicationContext.getApplicationName());
 
         List<Route> routes = camelContext.getRoutes();
-        assertEquals(4, routes.size());
+        assertEquals(6, routes.size());
     }
 
 

@@ -1,5 +1,6 @@
 package ch.dboeckli.camel.routes;
 
+import ch.dboeckli.camel.routes.processor.SimpleLogProcessor;
 import ch.dboeckli.camel.routes.util.CurrentTime;
 import lombok.RequiredArgsConstructor;
 import org.apache.camel.builder.RouteBuilder;
@@ -19,6 +20,7 @@ public class MyFirstTimerRouter extends RouteBuilder {
             .routeId(MY_FIRST_ROUTE_ID)
             .bean(currentTime, "getCurrentTime") // transform via bean because bean method getCurrentTime returns a String
             .bean(currentTime, "logCurrentTime") // process via bean because bean method logCurrentTime returns void
+            .process(new SimpleLogProcessor())
             .to("log:info"); // log endpoint
     }
 }
