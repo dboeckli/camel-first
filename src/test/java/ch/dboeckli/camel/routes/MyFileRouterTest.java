@@ -4,7 +4,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.camel.CamelContext;
 import org.apache.camel.EndpointInject;
 import org.apache.camel.Exchange;
-import org.apache.camel.ProducerTemplate;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.test.spring.junit5.CamelSpringBootTest;
 import org.apache.camel.test.spring.junit5.MockEndpoints;
@@ -22,6 +21,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.time.Duration;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -40,9 +40,6 @@ class MyFileRouterTest {
 
     @Autowired
     private CamelContext camelContext;
-
-    @Autowired
-    private ProducerTemplate producerTemplate;
 
     @EndpointInject("mock:file:files/output")
     private MockEndpoint outputMock;
@@ -97,14 +94,14 @@ class MyFileRouterTest {
 
     private void deleteRegularFiles(Path dir) throws Exception {
         if (Files.exists(dir)) {
-            try (var stream = Files.walk(dir, 1)) {
-                stream.filter(p -> !p.equals(dir))
+            try (Stream<Path> stream = Files.walk(dir, 1)) {
+                stream.filter(path -> !path.equals(dir))
                     .filter(Files::isRegularFile)
-                    .forEach(p -> {
+                    .forEach(path -> {
                         try {
-                            Files.deleteIfExists(p);
+                            Files.deleteIfExists(path);
                         } catch (Exception e) {
-                            throw new RuntimeException("Konnte Datei nicht löschen: " + p, e);
+                            throw new RuntimeException("Konnte Datei nicht löschen: " + path, e);
                         }
                     });
             }
@@ -113,7 +110,7 @@ class MyFileRouterTest {
 
     private void copyBaseFilesToInput() throws Exception {
         if (Files.exists(FILES_DIR)) {
-            try (var stream = Files.list(FILES_DIR)) {
+            try (Stream<Path> stream = Files.list(FILES_DIR)) {
                 stream.filter(Files::isRegularFile)
                     .forEach(src -> {
                         var target = INPUT_DIR.resolve(src.getFileName());
@@ -126,34 +123,33 @@ class MyFileRouterTest {
                     });
             }
         }
-        Files.list(INPUT_DIR).forEach(p -> log.info("Input file: {}", p));
+        Files.list(INPUT_DIR).forEach(path -> log.info("Input file: {}", path));
     }
 
     private void waitUntilInputContainsAllBaseFiles() throws Exception {
-        var expected = listRegularFileNames(FILES_DIR);
+        List<String> expectedFileNames = listRegularFileNames(FILES_DIR);
         Awaitility.await()
             .atMost(Duration.ofSeconds(3))
             .pollInterval(Duration.ofMillis(100))
             .untilAsserted(() -> {
-                var actual = listRegularFileNames(INPUT_DIR);
-                // Enthält alle erwarteten Dateien (Reihenfolge egal)
-                org.assertj.core.api.Assertions.assertThat(actual).containsAll(expected);
+                List<String> actualFileNames = listRegularFileNames(INPUT_DIR);
+                org.assertj.core.api.Assertions.assertThat(actualFileNames).containsAll(expectedFileNames);
             });
     }
 
-    private java.util.List<String> listRegularFileNames(Path dir) throws Exception {
+    private List<String> listRegularFileNames(Path dir) throws Exception {
         if (!Files.exists(dir)) return java.util.List.of();
-        try (Stream<Path> s = Files.list(dir)) {
-            return s.filter(Files::isRegularFile)
-                .map(p -> p.getFileName().toString())
+        try (Stream<Path> pathStream = Files.list(dir)) {
+            return pathStream.filter(Files::isRegularFile)
+                .map(path -> path.getFileName().toString())
                 .collect(Collectors.toList());
         }
     }
 
     private int countRegularFiles(Path dir) throws Exception {
         if (!Files.exists(dir)) return 0;
-        try (var s = Files.list(dir)) {
-            return (int) s.filter(Files::isRegularFile).count();
+        try (Stream<Path> pathStream = Files.list(dir)) {
+            return (int) pathStream.filter(Files::isRegularFile).count();
         }
     }
 
