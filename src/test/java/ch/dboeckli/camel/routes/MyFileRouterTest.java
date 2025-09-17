@@ -66,7 +66,7 @@ class MyFileRouterTest {
     }
 
     @Test
-    void fileRoute_copiesBody_and_preservesFileNameHeader() throws Exception {
+    void fileRoute_should_copy_files_to_output_folder() throws Exception {
         var expectedNames = listRegularFileNames(INPUT_DIR);
         outputMock.expectedMessageCount(expectedNames.size());
         outputMock.expectedHeaderValuesReceivedInAnyOrder(Exchange.FILE_NAME, expectedNames);
