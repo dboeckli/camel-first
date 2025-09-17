@@ -1,9 +1,15 @@
-# Spring Boot 6 Template Project
-
-## TODO: ADAPAT AND ADD PDF FROM DOC FOLDER
+# Spring Boot 6 Camel Course Project
 
 ## Introduction
-This project serves as a template for Spring Boot 6 applications. It provides a solid foundation for quickly starting new Spring Boot projects with pre-configured settings and best practices.
+The Camel Course Project is a hands‑on learning repository for Apache Camel on Spring Boot 6 (Java 21):
+- timer-driven routes for exploring message transformation, bean invocation, custom processors, and structured logging,
+- a file-processing flow that lists input files on startup, picks up files from files/input, writes them to files/output, and logs helpful metadata (file name, path, size),
+- health and operational insights via Spring Boot Actuator,
+- a fully automated CI pipeline (build, test, analysis, versioning, image publishing),
+- ready-to-use Kubernetes manifests and Helm charts, including kind-based validation in CI.
+
+
+You can run lessons locally, in containers, or in a cluster. Start by exploring the documentation, run the application, and use health/actuator endpoints to verify it works. The focus is on building robust routes, error handling and retries, idempotency, and operational readiness.
 
 ## Prerequisites
 - GitHub account
@@ -28,13 +34,6 @@ This project serves as a template for Spring Boot 6 applications. It provides a 
     - Point to a valid `settings.xml` for GitHub dependency resolution.
     - Set local Maven repository outside of Microsoft's cloud (e.g., `C:\development\tools\maven-repo`).
 3. Create a feature branch for your changes.
-
-### 3. Project Customization
-1. Search for TODOs in the project and update the following:
-    - Rename `group-id` and `artifact-id` in `pom.xml`
-    - Update `name` in `application.yaml`
-    - Ensure all names match your GitHub project name
-2. Rename packages and classes as needed.
 
 ### 4. GitHub Configuration
 1. Add the following secrets in your GitHub project Action settings:
@@ -141,36 +140,36 @@ tar -xvf $file.Name
 install
 ```powershell
 $APPLICATION_NAME = Get-ChildItem -Directory | Where-Object { $_.LastWriteTime -ge $file.LastWriteTime } | Select-Object -ExpandProperty Name
-helm upgrade --install $APPLICATION_NAME ./$APPLICATION_NAME --namespace spring-6-project-template --create-namespace --wait --timeout 8m --debug --render-subchart-notes
+helm upgrade --install $APPLICATION_NAME ./$APPLICATION_NAME --namespace course-camel --create-namespace --wait --timeout 8m --debug --render-subchart-notes
 ```
 
 show logs
 ```powershell
-kubectl get pods -l app.kubernetes.io/name=$APPLICATION_NAME -n spring-6-project-template
+kubectl get pods -l app.kubernetes.io/name=$APPLICATION_NAME -n course-camel
 ```
 replace $POD with pods from the command above
 ```powershell
-kubectl logs $POD -n spring-6-project-template --all-containers
+kubectl logs $POD -n course-camel --all-containers
 ```
 
 test
 ```powershell
-helm test $APPLICATION_NAME --namespace spring-6-project-template --logs
+helm test $APPLICATION_NAME --namespace course-camel --logs
 ```
 
 uninstall
 ```powershell
-helm uninstall $APPLICATION_NAME --namespace spring-6-project-template
+helm uninstall $APPLICATION_NAME --namespace course-camel
 ```
 
 delete all
 ```powershell
-kubectl delete all --all -n spring-6-project-template
+kubectl delete all --all -n course-camel
 ```
 
 create busybox sidecar
 ```powershell
-kubectl run busybox-test --rm -it --image=busybox:1.36 --namespace=spring-6-project-template --command -- sh
+kubectl run busybox-test --rm -it --image=busybox:latest --namespace=course-camel --command -- sh
 ```
 
 You can use the actuator rest call to verify via port 30080
