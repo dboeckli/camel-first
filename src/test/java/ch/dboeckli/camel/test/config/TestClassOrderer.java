@@ -13,7 +13,7 @@ public class TestClassOrderer implements ClassOrderer {
     }
 
     private static int getOrder(ClassDescriptor classDescriptor) {
-        String className = classDescriptor.getDisplayName();
+        String className = classDescriptor.getTestClass().getSimpleName();
         if (className.endsWith("Test")) {
             return 1;
         } else if (className.endsWith("IT")) {
