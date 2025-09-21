@@ -9,7 +9,7 @@
     </parent>
 
     <groupId>ch.dboeckli.camel</groupId>
-    <artifactId>course-camel</artifactId>
+    <artifactId>camel-first</artifactId>
     <version>0.0.1-SNAPSHOT</version>
 
     <name>${project.artifactId}</name>
