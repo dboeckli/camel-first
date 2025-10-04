@@ -1,7 +1,7 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="FirstCamelApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
     <option name="ACTIVE_PROFILES" value="local" />
-    <module name="course-camel" />
+    <module name="camel-first" />
     <option name="SPRING_BOOT_MAIN_CLASS" value="ch.dboeckli.camel.FirstCamelApplication" />
     <method v="2">
       <option name="Make" enabled="true" />

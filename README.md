@@ -140,36 +140,36 @@ tar -xvf $file.Name
 install
 ```powershell
 $APPLICATION_NAME = Get-ChildItem -Directory | Where-Object { $_.LastWriteTime -ge $file.LastWriteTime } | Select-Object -ExpandProperty Name
-helm upgrade --install $APPLICATION_NAME ./$APPLICATION_NAME --namespace course-camel --create-namespace --wait --timeout 8m --debug --render-subchart-notes
+helm upgrade --install $APPLICATION_NAME ./$APPLICATION_NAME --namespace camel-first --create-namespace --wait --timeout 8m --debug --render-subchart-notes
 ```
 
 show logs
 ```powershell
-kubectl get pods -l app.kubernetes.io/name=$APPLICATION_NAME -n course-camel
+kubectl get pods -l app.kubernetes.io/name=$APPLICATION_NAME -n camel-first
 ```
 replace $POD with pods from the command above
 ```powershell
-kubectl logs $POD -n course-camel --all-containers
+kubectl logs $POD -n camel-first --all-containers
 ```
 
 test
 ```powershell
-helm test $APPLICATION_NAME --namespace course-camel --logs
+helm test $APPLICATION_NAME --namespace camel-first --logs
 ```
 
 uninstall
 ```powershell
-helm uninstall $APPLICATION_NAME --namespace course-camel
+helm uninstall $APPLICATION_NAME --namespace camel-first
 ```
 
 delete all
 ```powershell
-kubectl delete all --all -n course-camel
+kubectl delete all --all -n camel-first
 ```
 
 create busybox sidecar
 ```powershell
-kubectl run busybox-test --rm -it --image=busybox:latest --namespace=course-camel --command -- sh
+kubectl run busybox-test --rm -it --image=busybox:latest --namespace=camel-first --command -- sh
 ```
 
 You can use the actuator rest call to verify via port 30080

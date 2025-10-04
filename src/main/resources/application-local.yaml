@@ -3,7 +3,7 @@ server:
 
 spring:
   application:
-    name: course-camel
+    name: camel-first
   docker:
     compose:
       enabled: false
