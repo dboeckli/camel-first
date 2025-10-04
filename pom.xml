@@ -40,7 +40,7 @@
         <docker.image.tag>development</docker.image.tag> <!-- for feature branches -->
         <docker.repo>local</docker.repo>
 
-        <camel-spring-boot-starter.version>4.14.0</camel-spring-boot-starter.version>
+        <camel-spring-boot-starter.version>4.14.1</camel-spring-boot-starter.version>
 
         <logbook.version>3.12.3</logbook.version>
         <logstash-logback.version>8.1</logstash-logback.version>
