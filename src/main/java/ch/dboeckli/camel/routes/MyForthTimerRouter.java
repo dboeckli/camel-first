@@ -9,12 +9,13 @@ import java.time.LocalDateTime;
 public class MyForthTimerRouter extends RouteBuilder {
 
     public static final String MY_FORTH_ROUTE_ID = "my-forth-timer-route";
+    private static final String MY_FORTH_ROUTE_NAME = MyForthTimerRouter.class.getSimpleName();
 
     @Override
     public void configure() {
-        from("timer:forth-timer from " + MyForthTimerRouter.class)  // timer endpoint
+        from("timer:" + MY_FORTH_ROUTE_NAME + "?period=5000&delay=2000")
             .routeId(MY_FORTH_ROUTE_ID)
-            .process(e -> e.getIn().setBody("Hello Camel! Time is: " + LocalDateTime.now()))
+            .process(exchange -> exchange.getIn().setBody("Hello Camel! Time is: " + LocalDateTime.now()))
             .to("log:info"); // log endpoint
     }
 }
