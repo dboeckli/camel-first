@@ -17,7 +17,6 @@ import org.springframework.test.context.ActiveProfiles;
 
 import java.util.List;
 
-import static ch.dboeckli.camel.routes.MyFirstTimerRouter.MY_FIRST_ROUTE_ID;
 import static ch.dboeckli.camel.routes.MyThirdTimerRouter.MY_THIRD_ROUTE_ID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
