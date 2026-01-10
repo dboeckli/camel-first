@@ -16,6 +16,8 @@ camel:
     traceProcessors: true
 
 otel:
+  service:
+    name: ${spring.application.name}
   metrics:
     exporter: none
   logs:

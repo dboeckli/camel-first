@@ -14,7 +14,10 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-@SpringBootTest(useMainMethod = SpringBootTest.UseMainMethod.ALWAYS)
+@SpringBootTest(
+    useMainMethod = SpringBootTest.UseMainMethod.ALWAYS,
+    properties = "otel.java.global-autoconfigure.enabled=true"
+)
 @Slf4j
 @ActiveProfiles("local")
 class FirstCamelApplicationIT {
