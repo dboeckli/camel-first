@@ -10,6 +10,22 @@ spring:
       stop:
         command: down
 
+camel:
+  opentelemetry2:
+    enabled: true
+    traceProcessors: true
+
+otel:
+  metrics:
+    exporter: none
+  logs:
+    exporter: none
+  traces:
+    exporter: none
+  instrumentation:
+    logback-mdc:
+      add-baggage: true
+
 management:
   health:
     readinessstate:

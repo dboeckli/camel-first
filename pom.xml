@@ -181,6 +181,10 @@
             <groupId>io.opentelemetry.instrumentation</groupId>
             <artifactId>opentelemetry-spring-boot-starter</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.apache.camel.springboot</groupId>
+            <artifactId>camel-opentelemetry2-starter</artifactId>
+        </dependency>
 
         <dependency>
             <groupId>net.logstash.logback</groupId>
