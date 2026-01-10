@@ -14,25 +14,30 @@ import java.util.stream.Stream;
 @RequiredArgsConstructor
 public class MyFileRouter extends RouteBuilder {
 
-    public static final String MY_FILE_ROUTE_ID = "my-file-route";
+    public static final String LIST_FILES_ROUTE_ID = "list-files-route";
+    public static final String LIST_FILES_ROUTE_NAME = "list-files-on-start";
+
+    public static final String COPY_FILES_ROUTE_ID = "copy-files-route";
+
+    public static final String INPUT_DIR = "files/input";
+    public static final String OUTPUT_DIR = "files/output";
 
     @Override
     public void configure() {
-        from("timer:list-files-on-start?repeatCount=1")
-            .routeId("list-input-files-on-start")
+        from("timer:" + LIST_FILES_ROUTE_NAME + "?repeatCount=1")
+            .routeId(LIST_FILES_ROUTE_ID)
             .process(exchange -> {
-                String listing = listFilesInDir("files/input");
+                String listing = listFilesInDir(INPUT_DIR);
                 exchange.getMessage().setBody(listing.isEmpty() ? "Keine Dateien gefunden." : listing);
             })
             .log(LoggingLevel.INFO, "Eingangs-Dateiliste:\n${body}");
 
 
-
-        from("file:files/input")
-            .routeId(MY_FILE_ROUTE_ID)
+        from("file:" + INPUT_DIR)
+            .routeId(COPY_FILES_ROUTE_ID)
             .log(LoggingLevel.INFO, "Pickup: '${header.CamelFileName}' at ${header.CamelFilePath} (${header.CamelFileLength} bytes)")
             .log("Files: ${body}")
-            .to("file:files/output")
+            .to("file:" + OUTPUT_DIR)
             .log(LoggingLevel.INFO, "Written: '${header.CamelFileName}' to ${header.CamelFilePath}");
     }
 
@@ -41,10 +46,10 @@ public class MyFileRouter extends RouteBuilder {
         if (!Files.isDirectory(path)) {
             return "Verzeichnis nicht gefunden: " + dir;
         }
-        try (Stream<Path> s = Files.list(path)) {
-            return s
+        try (Stream<Path> pathStream = Files.list(path)) {
+            return pathStream
                 .filter(Files::isRegularFile)
-                .map(p -> String.format("- %s (%d bytes)", p.getFileName(), safeSize(p)))
+                .map(foundPath -> String.format("- %s (%d bytes)", foundPath.getFileName(), safeSize(foundPath)))
                 .sorted()
                 .collect(Collectors.joining("\n"));
         } catch (Exception e) {
@@ -52,9 +57,9 @@ public class MyFileRouter extends RouteBuilder {
         }
     }
 
-    private long safeSize(Path p) {
+    private long safeSize(Path path) {
         try {
-            return Files.size(p);
+            return Files.size(path);
         } catch (Exception e) {
             return -1L;
         }

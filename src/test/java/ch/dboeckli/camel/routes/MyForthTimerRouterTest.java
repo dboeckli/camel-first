@@ -43,7 +43,7 @@ class MyForthTimerRouterTest {
         camelContext.start(); // we need to start Camel before we can use it, @UseAdviceWith disables the auto-start
 
         log.info("### Stopping all routes");
-        for (var route : camelContext.getRoutes()) {
+        for (Route route : camelContext.getRoutes()) {
             camelContext.getRouteController().stopRoute(route.getId());
         }
         log.info("### Starting route: {}", MY_FORTH_ROUTE_ID);
