@@ -3,6 +3,7 @@
     <option name="ACTIVE_PROFILES" value="local" />
     <module name="camel-first" />
     <option name="SPRING_BOOT_MAIN_CLASS" value="ch.dboeckli.camel.FirstCamelApplication" />
+    <option name="VM_PARAMETERS" value="-Dotel.java.global-autoconfigure.enabled=true" />
     <method v="2">
       <option name="Make" enabled="true" />
     </method>

@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.5.7</version>
+        <version>3.5.9</version>
         <relativePath />
     </parent>
 
@@ -40,9 +40,9 @@
         <docker.image.tag>development</docker.image.tag> <!-- for feature branches -->
         <docker.repo>local</docker.repo>
 
-        <camel-spring-boot-starter.version>4.16.0</camel-spring-boot-starter.version>
+        <camel-spring-boot.version>4.16.0</camel-spring-boot.version>
+        <opentelemetry-instrumentation.version>2.23.0</opentelemetry-instrumentation.version>
 
-        <logbook.version>3.12.3</logbook.version>
         <logstash-logback.version>9.0</logstash-logback.version>
         <editorconfig-maven-plugin.version>0.2.0</editorconfig-maven-plugin.version>
         <helm.plugin.version>6.17.0</helm.plugin.version>
@@ -134,6 +134,25 @@
         </repository>
     </distributionManagement>
 
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.apache.camel.springboot</groupId>
+                <artifactId>camel-spring-boot-bom</artifactId>
+                <version>${camel-spring-boot.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>io.opentelemetry.instrumentation</groupId>
+                <artifactId>opentelemetry-instrumentation-bom</artifactId>
+                <version>${opentelemetry-instrumentation.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -146,7 +165,6 @@
         <dependency>
             <groupId>org.apache.camel.springboot</groupId>
             <artifactId>camel-spring-boot-starter</artifactId>
-            <version>${camel-spring-boot-starter.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -156,15 +174,18 @@
         </dependency>
 
         <dependency>
-            <groupId>org.zalando</groupId>
-            <artifactId>logbook-spring-boot-starter</artifactId>
-            <version>${logbook.version}</version>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-registry-prometheus</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.zalando</groupId>
-            <artifactId>logbook-logstash</artifactId>
-            <version>${logbook.version}</version>
+            <groupId>io.opentelemetry.instrumentation</groupId>
+            <artifactId>opentelemetry-spring-boot-starter</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.apache.camel.springboot</groupId>
+            <artifactId>camel-opentelemetry2-starter</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>net.logstash.logback</groupId>
             <artifactId>logstash-logback-encoder</artifactId>
@@ -177,6 +198,7 @@
             <optional>true</optional>
         </dependency>
 
+        <!-- test dependencies -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
@@ -185,7 +207,6 @@
         <dependency>
             <groupId>org.apache.camel</groupId>
             <artifactId>camel-test-spring-junit5</artifactId>
-            <version>${camel-spring-boot-starter.version}</version>
             <scope>test</scope>
         </dependency>
 
@@ -530,7 +551,9 @@
                         <id>start-springboot-app</id>
                         <goals>
                             <goal>start</goal>
+                            <goal>stop</goal>
                         </goals>
+                        <phase>post-integration-test</phase>
                         <configuration>
                             <skip>${skip.start.stop.springboot}</skip>
                             <wait>1000</wait> <!-- 1000 milliseconds is default -->
@@ -541,18 +564,8 @@
                                 <argument>--server.port=${tomcat.http.port}</argument>
                                 <argument>--spring.cloud.kubernetes.enabled=false</argument>
                                 <argument>--spring.profiles.active=local</argument>
+                                <argument>--otel.java.global-autoconfigure.enabled=true</argument>
                             </arguments>
-                            <jmxPort>${jmx.server.port}</jmxPort>
-                        </configuration>
-                    </execution>
-
-                    <execution>
-                        <id>stop-springboot-app</id>
-                        <goals>
-                            <goal>stop</goal>
-                        </goals>
-                        <configuration>
-                            <skip>${skip.start.stop.springboot}</skip>
                             <jmxPort>${jmx.server.port}</jmxPort>
                         </configuration>
                     </execution>
