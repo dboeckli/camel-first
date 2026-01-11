@@ -14,19 +14,25 @@ camel:
   opentelemetry2:
     enabled: true
     traceProcessors: true
+  health:
+    enabled: true
+    routes-enabled: true
+    consumers-enabled: true
+    producers-enabled: true
 
 otel:
   service:
     name: ${spring.application.name}
+  traces:
+    exporter: none
   metrics:
     exporter: none
   logs:
     exporter: none
-  traces:
-    exporter: none
   instrumentation:
     logback-mdc:
       add-baggage: true
+      enabled: true
 
 management:
   health:

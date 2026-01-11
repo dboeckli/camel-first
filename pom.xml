@@ -565,6 +565,9 @@
                                 <argument>--spring.cloud.kubernetes.enabled=false</argument>
                                 <argument>--spring.profiles.active=local</argument>
                                 <argument>--otel.java.global-autoconfigure.enabled=true</argument>
+                                <argument>--Dotel.traces.exporter=none</argument>
+                                <argument>--Dotel.metrics.exporter=none</argument>
+                                <argument>--Dotel.logs.exporter=none</argument>
                             </arguments>
                             <jmxPort>${jmx.server.port}</jmxPort>
                         </configuration>
