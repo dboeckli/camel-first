@@ -40,7 +40,7 @@
         <docker.image.tag>development</docker.image.tag> <!-- for feature branches -->
         <docker.repo>local</docker.repo>
 
-        <camel-spring-boot.version>4.16.0</camel-spring-boot.version>
+        <camel-spring-boot.version>4.17.0</camel-spring-boot.version>
         <opentelemetry-instrumentation.version>2.23.0</opentelemetry-instrumentation.version>
 
         <logstash-logback.version>9.0</logstash-logback.version>
