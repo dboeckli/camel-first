@@ -6,9 +6,13 @@ spring:
     name: camel-first
   docker:
     compose:
-      enabled: false
+      enabled: true
       stop:
         command: down
+  artemis:
+    broker-url: "tcp://localhost:61616"
+    user: artemis
+    password: simetraehcapa
 
 camel:
   opentelemetry2:
@@ -82,3 +86,7 @@ management:
       client:
         requests:
           name: http-client-requests
+
+application:
+  activemq:
+    queue: my-first-activemq-queue

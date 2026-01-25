@@ -1,0 +1,25 @@
+global:
+  namespace: kbe-brewery-gateway
+
+service:
+  type: NodePort
+
+  broker:
+    port: 61616
+    nodePort: 30616
+    targetPort: 61616
+  console:
+    port: 8161
+    nodePort: 30161
+    targetPort: 8161
+
+  user: artemis
+  password: simetraehcapa
+
+ingress:
+  enabled: false
+
+activemqArtemisImage:
+  repository: apache/activemq-artemis
+  tag: "2.44.0"
+  pullPolicy: IfNotPresent

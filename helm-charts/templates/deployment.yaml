@@ -24,6 +24,14 @@ spec:
               value: "{{ .Values.global.timezone }}"
             - name: SPRING_PROFILES_ACTIVE
               value: {{ .Values.spring.profiles.active | default "local" }}
+            - name: SPRING_ARTEMIS_BROKER_URL
+              value: "tcp://{{ .Release.Name }}-jms:61616"
+            - name: JAVA_TOOL_OPTIONS
+              value: >-
+                -Dotel.java.global-autoconfigure.enabled=true
+                -Dotel.traces.exporter=none
+                -Dotel.metrics.exporter=none
+                -Dotel.logs.exporter=none
           ports:
             - name: http
               containerPort: {{ .Values.service.targetPort }}

@@ -1,5 +1,9 @@
 # Spring Boot 6 Camel Course Project
 
+Based on: https://www.udemy.com/course/apache-camel-framework-with-spring-boot
+
+Active MQ console: http://localhost:8161/console
+
 ## Introduction
 The Camel Course Project is a hands‑on learning repository for Apache Camel on Spring Boot 6 (Java 21):
 - timer-driven routes for exploring message transformation, bean invocation, custom processors, and structured logging,

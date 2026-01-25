@@ -6,3 +6,10 @@ description: A Helm chart for Spring 6 Projects
 type: application
 version: @helm.chart.version@
 appVersion: @project.version@
+
+dependencies:
+  - name: kbe-brewery-gateway-jms
+    alias: jms
+    version: @helm.chart.version@
+    repository: file://charts/jms
+    condition: jms.enabled
