@@ -16,7 +16,11 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @SpringBootTest(
     useMainMethod = SpringBootTest.UseMainMethod.ALWAYS,
-    properties = "otel.java.global-autoconfigure.enabled=true"
+    properties = {
+        "otel.java.global-autoconfigure.enabled=true",
+        "spring.docker.compose.enabled=true",
+        "spring.docker.compose.skip.in-tests=false"
+    }
 )
 @Slf4j
 @ActiveProfiles("local")
@@ -34,7 +38,7 @@ class FirstCamelApplicationIT {
         log.info("Testing Spring 6 Application {}", applicationContext.getApplicationName());
 
         List<Route> routes = camelContext.getRoutes();
-        assertEquals(6, routes.size());
+        assertEquals(7, routes.size());
     }
 
 
