@@ -24,6 +24,8 @@ spec:
               value: "{{ .Values.global.timezone }}"
             - name: SPRING_PROFILES_ACTIVE
               value: {{ .Values.spring.profiles.active | default "local" }}
+            - name: SPRING_ARTEMIS_BROKER_URL
+              value: "tcp://{{ .Release.Name }}-jms:61616"
           ports:
             - name: http
               containerPort: {{ .Values.service.targetPort }}
