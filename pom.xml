@@ -41,7 +41,7 @@
         <docker.repo>local</docker.repo>
 
         <camel-spring-boot.version>4.17.0</camel-spring-boot.version>
-        <opentelemetry-instrumentation.version>2.24.0</opentelemetry-instrumentation.version>
+        <opentelemetry-instrumentation.version>2.25.0</opentelemetry-instrumentation.version>
 
         <logstash-logback.version>9.0</logstash-logback.version>
         <editorconfig-maven-plugin.version>0.2.0</editorconfig-maven-plugin.version>
