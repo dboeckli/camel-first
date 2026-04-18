@@ -40,7 +40,8 @@ class MyThirdTimerRouterTest {
 
     @BeforeEach
     void startOnlyDesiredRoute() throws Exception {
-        camelContext.start(); // we need to start Camel before we can use it, @UseAdviceWith disables the auto-start
+        camelContext.start(); // we need to start Camel before we can use it,
+                              // @UseAdviceWith disables the auto-start
 
         log.info("### Stopping all routes");
         for (var route : camelContext.getRoutes()) {
@@ -50,22 +51,20 @@ class MyThirdTimerRouterTest {
         camelContext.getRouteController().startRoute(MY_THIRD_ROUTE_ID);
     }
 
-
     @Test
     void timerRoute_emitsGreeting() throws Exception {
         logMock.expectedMinimumMessageCount(1);
         logMock.assertIsSatisfied(5000);
 
-        List<Route> startedRoutes = camelContext.getRoutes().stream()
+        List<Route> startedRoutes = camelContext.getRoutes()
+            .stream()
             .filter(r -> camelContext.getRouteController().getRouteStatus(r.getId()).isStarted())
             .toList();
         String body = logMock.getExchanges().getFirst().getIn().getBody(String.class);
 
-        assertAll(
-            () -> assertEquals(1, startedRoutes.size()),
-            () -> assertEquals(MY_THIRD_ROUTE_ID, startedRoutes.getFirst().getId()),
-            () -> assertThat(body).startsWith("Hello Camel! Time is: ")
-        );
+        assertAll(() -> assertEquals(1, startedRoutes.size()),
+                () -> assertEquals(MY_THIRD_ROUTE_ID, startedRoutes.getFirst().getId()),
+                () -> assertThat(body).startsWith("Hello Camel! Time is: "));
 
     }
 

@@ -1,5 +1,5 @@
 = Camel Spring Boot Compatibility Matrix
-:generated: 2026-03-28 12:34:54
+:generated: 2026-04-18 12:10:22
 :cutover: 4.15.0
 
 Generated: {generated}
@@ -158,4 +158,5 @@ Generated: {generated}
 | 4.17.0 | ? | 2026-01-08 | 3.5.9 | 2025-12-18 | 4.1.4 | link:https://repo.maven.apache.org/maven2/org/apache/camel/camel-parent/4.17.0/camel-parent-4.17.0.pom[] | link:https://repo.maven.apache.org/maven2/org/apache/camel/camel-parent/4.17.0/camel-parent-4.17.0.pom[]
 | 4.18.0 | LTS | 2026-02-13 | 3.5.10 | 2026-01-22 | 4.1.4 | link:https://repo.maven.apache.org/maven2/org/apache/camel/camel-parent/4.18.0/camel-parent-4.18.0.pom[] | link:https://repo.maven.apache.org/maven2/org/apache/camel/camel-parent/4.18.0/camel-parent-4.18.0.pom[]
 | 4.18.1 | LTS | 2026-03-24 | 3.5.12 | 2026-03-19 | 4.1.5 | link:https://repo.maven.apache.org/maven2/org/apache/camel/camel-parent/4.18.1/camel-parent-4.18.1.pom[] | link:https://repo.maven.apache.org/maven2/org/apache/camel/camel-parent/4.18.1/camel-parent-4.18.1.pom[]
+| 4.19.0 | ? | 2026-04-13 | 4.0.5 | 2026-03-26 | 4.2.0 | link:https://repo.maven.apache.org/maven2/org/apache/camel/camel-parent/4.19.0/camel-parent-4.19.0.pom[] | link:https://repo.maven.apache.org/maven2/org/apache/camel/camel-parent/4.19.0/camel-parent-4.19.0.pom[]
 |===

@@ -56,13 +56,13 @@ class ActiveMqSenderRouterTest {
         jmsMock.message(0).body().isEqualTo("message-for-activemq");
         jmsMock.assertIsSatisfied(7000);
 
-        List<Route> startedRoutes = camelContext.getRoutes().stream()
+        List<Route> startedRoutes = camelContext.getRoutes()
+            .stream()
             .filter(r -> camelContext.getRouteController().getRouteStatus(r.getId()).isStarted())
             .toList();
 
-        assertAll(
-            () -> assertEquals(1, startedRoutes.size()),
-            () -> assertEquals(ACTIVE_MQ_ROUTER_ID, startedRoutes.getFirst().getId())
-        );
+        assertAll(() -> assertEquals(1, startedRoutes.size()),
+                () -> assertEquals(ACTIVE_MQ_ROUTER_ID, startedRoutes.getFirst().getId()));
     }
+
 }

@@ -33,6 +33,10 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
+      - uses: mfinelli/setup-shfmt@v4
+        with:
+          shfmt-version: 3.13.0
+
       - name: Set up java
         uses: actions/setup-java@v5
         with:
@@ -146,6 +150,10 @@ jobs:
           cache: 'maven'
           server-id: github # Value of the distributionManagement/repository/id field of the pom.xml.
           settings-path: ${{ github.workspace }} # location for the settings.xml file
+
+      - uses: mfinelli/setup-shfmt@v4
+        with:
+          shfmt-version: 3.13.0
 
       - name: Create k8s Kind Cluster
         uses: helm/kind-action@v1.14.0
@@ -295,6 +303,10 @@ jobs:
           cache: 'maven'
           server-id: github # Value of the distributionManagement/repository/id field of the pom.xml.
           settings-path: ${{ github.workspace }} # location for the settings.xml file
+
+      - uses: mfinelli/setup-shfmt@v4
+        with:
+          shfmt-version: 3.13.0
 
       - name: Create k8s Kind Cluster
         uses: helm/kind-action@v1.14.0
