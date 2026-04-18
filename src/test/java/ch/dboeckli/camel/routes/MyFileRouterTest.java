@@ -45,9 +45,10 @@ class MyFileRouterTest {
     private MockEndpoint outputMock;
 
     private static final Path FILES_PATH = Path.of(INPUT_DIR).getParent();
-    private static final Path INPUT_PATH = Path.of(INPUT_DIR);
-    private static final Path OUTPUT_PATH = Path.of(OUTPUT_DIR);
 
+    private static final Path INPUT_PATH = Path.of(INPUT_DIR);
+
+    private static final Path OUTPUT_PATH = Path.of(OUTPUT_DIR);
 
     @BeforeEach
     void adviceAndStartRoute() throws Exception {
@@ -95,15 +96,14 @@ class MyFileRouterTest {
     private void deleteRegularFiles(Path path) throws Exception {
         if (Files.exists(path)) {
             try (Stream<Path> stream = Files.walk(path, 1)) {
-                stream.filter(foundPath -> !foundPath.equals(path))
-                    .filter(Files::isRegularFile)
-                    .forEach(foundPath -> {
-                        try {
-                            Files.deleteIfExists(foundPath);
-                        } catch (Exception e) {
-                            throw new RuntimeException("Konnte Datei nicht löschen: " + foundPath, e);
-                        }
-                    });
+                stream.filter(foundPath -> !foundPath.equals(path)).filter(Files::isRegularFile).forEach(foundPath -> {
+                    try {
+                        Files.deleteIfExists(foundPath);
+                    }
+                    catch (Exception e) {
+                        throw new RuntimeException("Konnte Datei nicht löschen: " + foundPath, e);
+                    }
+                });
             }
         }
     }
@@ -111,16 +111,16 @@ class MyFileRouterTest {
     private void copyBaseFilesToInput() throws Exception {
         if (Files.exists(FILES_PATH)) {
             try (Stream<Path> stream = Files.list(FILES_PATH)) {
-                stream.filter(Files::isRegularFile)
-                    .forEach(src -> {
-                        Path target = INPUT_PATH.resolve(src.getFileName());
-                        try {
-                            log.info("Copying file: {} -> {}", src, target);
-                            Files.copy(src, target, StandardCopyOption.REPLACE_EXISTING);
-                        } catch (Exception e) {
-                            throw new RuntimeException("Konnte Datei nicht kopieren: " + src + " -> " + target, e);
-                        }
-                    });
+                stream.filter(Files::isRegularFile).forEach(src -> {
+                    Path target = INPUT_PATH.resolve(src.getFileName());
+                    try {
+                        log.info("Copying file: {} -> {}", src, target);
+                        Files.copy(src, target, StandardCopyOption.REPLACE_EXISTING);
+                    }
+                    catch (Exception e) {
+                        throw new RuntimeException("Konnte Datei nicht kopieren: " + src + " -> " + target, e);
+                    }
+                });
             }
         }
         Files.list(INPUT_PATH).forEach(path -> log.info("Input file: {}", path));
@@ -128,17 +128,15 @@ class MyFileRouterTest {
 
     private void waitUntilInputContainsAllBaseFiles() throws Exception {
         List<String> expectedFileNames = listRegularFileNames(FILES_PATH);
-        Awaitility.await()
-            .atMost(Duration.ofSeconds(3))
-            .pollInterval(Duration.ofMillis(100))
-            .untilAsserted(() -> {
-                List<String> actualFileNames = listRegularFileNames(INPUT_PATH);
-                org.assertj.core.api.Assertions.assertThat(actualFileNames).containsAll(expectedFileNames);
-            });
+        Awaitility.await().atMost(Duration.ofSeconds(3)).pollInterval(Duration.ofMillis(100)).untilAsserted(() -> {
+            List<String> actualFileNames = listRegularFileNames(INPUT_PATH);
+            org.assertj.core.api.Assertions.assertThat(actualFileNames).containsAll(expectedFileNames);
+        });
     }
 
     private List<String> listRegularFileNames(Path path) throws Exception {
-        if (!Files.exists(path)) return java.util.List.of();
+        if (!Files.exists(path))
+            return java.util.List.of();
         try (Stream<Path> pathStream = Files.list(path)) {
             return pathStream.filter(Files::isRegularFile)
                 .map(foundPath -> foundPath.getFileName().toString())
@@ -147,7 +145,8 @@ class MyFileRouterTest {
     }
 
     private int countRegularFiles(Path path) throws Exception {
-        if (!Files.exists(path)) return 0;
+        if (!Files.exists(path))
+            return 0;
         try (Stream<Path> pathStream = Files.list(path)) {
             return (int) pathStream.filter(Files::isRegularFile).count();
         }

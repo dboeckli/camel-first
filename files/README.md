@@ -15,5 +15,5 @@ Notes:
 To test the functionality manually:
 - Copy the desired files from this folder into `files/input/`.
 - Start the Spring Boot application.
-    - For example: `mvn spring-boot:run`, or run the `main` method of the application.
+- For example: `mvn spring-boot:run`, or run the `main` method of the application.
 - The route will process files from `files/input/` and copy them to `files/output/`. Verify the results in the `files/output/` folder and in the application logs.

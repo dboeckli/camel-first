@@ -13,15 +13,19 @@ public class MyFirstTimerRouter extends RouteBuilder {
     private final CurrentTime currentTime;
 
     public static final String MY_FIRST_ROUTE_ID = "my-first-timer-route";
+
     private static final String MY_FIRST_ROUTE_NAME = MySecondTimerRouter.class.getSimpleName();
 
     @Override
     public void configure() {
-        from("timer:" + MY_FIRST_ROUTE_NAME + "?period=5000&delay=2000")  // timer endpoint
+        from("timer:" + MY_FIRST_ROUTE_NAME + "?period=5000&delay=2000") // timer endpoint
             .routeId(MY_FIRST_ROUTE_ID)
-            .bean(currentTime, "getCurrentTime") // transform via bean because bean method getCurrentTime returns a String
-            .bean(currentTime, "logCurrentTime") // process via bean because bean method logCurrentTime returns void
+            .bean(currentTime, "getCurrentTime") // transform via bean because bean method
+                                                 // getCurrentTime returns a String
+            .bean(currentTime, "logCurrentTime") // process via bean because bean method
+                                                 // logCurrentTime returns void
             .process(new SimpleLogProcessor())
             .to("log:info"); // log endpoint
     }
+
 }
