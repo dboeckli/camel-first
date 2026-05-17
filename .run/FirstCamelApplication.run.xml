@@ -1,6 +1,8 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="FirstCamelApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
     <option name="ACTIVE_PROFILES" value="local" />
+    <log_file alias="spring.log" path="$PROJECT_DIR$/target/logs/spring.log" show_all="true" />
+    <log_file alias="spring-ecs.log" path="$PROJECT_DIR$/target/logs/spring-ecs.log" show_all="true" />
     <module name="camel-first" />
     <option name="SPRING_BOOT_MAIN_CLASS" value="ch.dboeckli.camel.FirstCamelApplication" />
     <option name="VM_PARAMETERS" value="-Dotel.java.global-autoconfigure.enabled=true -Dotel.traces.exporter=none -Dotel.metrics.exporter=none -Dotel.logs.exporter=none" />

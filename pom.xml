@@ -53,6 +53,8 @@
     <opentelemetry-instrumentation.version>2.27.0</opentelemetry-instrumentation.version>
 
     <logstash-logback.version>9.0</logstash-logback.version>
+    <logback-ecs-encoder.version>1.8.0</logback-ecs-encoder.version>
+
     <spring-javaformat-maven-plugin.version>0.0.47</spring-javaformat-maven-plugin.version>
     <spotless-maven-plugin.version>3.5.0</spotless-maven-plugin.version>
     <helm.plugin.version>6.17.0</helm.plugin.version>
@@ -100,6 +102,10 @@
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-web</artifactId>
     </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-aop</artifactId>
+    </dependency>
 
     <dependency>
       <groupId>org.apache.camel.springboot</groupId>
@@ -125,6 +131,7 @@
       <groupId>io.micrometer</groupId>
       <artifactId>micrometer-registry-prometheus</artifactId>
     </dependency>
+
     <dependency>
       <groupId>io.opentelemetry.instrumentation</groupId>
       <artifactId>opentelemetry-spring-boot-starter</artifactId>
@@ -138,6 +145,12 @@
       <groupId>net.logstash.logback</groupId>
       <artifactId>logstash-logback-encoder</artifactId>
       <version>${logstash-logback.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>co.elastic.logging</groupId>
+      <artifactId>logback-ecs-encoder</artifactId>
+      <version>${logback-ecs-encoder.version}</version>
+      <scope>compile</scope>
     </dependency>
 
     <dependency>
