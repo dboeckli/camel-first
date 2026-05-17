@@ -44,6 +44,8 @@ otel:
       enabled: true
     annotations:
       enabled: true
+    micrometer:
+      enabled: true
   resource:
     attributes:
       deployment.environment: local
