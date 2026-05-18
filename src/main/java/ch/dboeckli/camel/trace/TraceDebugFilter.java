@@ -1,6 +1,5 @@
 package ch.dboeckli.camel.trace;
 
-import io.opentelemetry.api.OpenTelemetry;
 import io.opentelemetry.api.trace.*;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -13,7 +12,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.util.Objects;
 
 @Component
 @Slf4j

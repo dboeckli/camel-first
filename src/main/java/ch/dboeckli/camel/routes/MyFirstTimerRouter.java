@@ -19,6 +19,7 @@ public class MyFirstTimerRouter extends RouteBuilder {
     @Override
     public void configure() {
         from("timer:" + MY_FIRST_ROUTE_NAME + "?period=5000&delay=2000") // timer endpoint
+            .process(e -> log.info("Test traceId"))
             .routeId(MY_FIRST_ROUTE_ID)
             .bean(currentTime, "getCurrentTime") // transform via bean because bean method
                                                  // getCurrentTime returns a String

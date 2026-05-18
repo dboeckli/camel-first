@@ -15,40 +15,18 @@ spring:
     password: simetraehcapa
 
 camel:
-  opentelemetry2:
+  micrometer:
     enabled: true
     traceProcessors: true
+    observability:
+      trace-processors: true
   health:
     enabled: true
     routes-enabled: true
     consumers-enabled: true
     producers-enabled: true
-
-otel:
-  service:
-    name: ${spring.application.name}
-  traces:
-    exporter: none
-    sampler:
-      arg: 1.0
-  metrics:
-    exporter: none
-  logs:
-    exporter: none
-  propagators:
-    - baggage
-    - tracecontext
-  instrumentation:
-    logback-mdc:
-      add-baggage: true
-      enabled: true
-    annotations:
-      enabled: true
-    micrometer:
-      enabled: true
-  resource:
-    attributes:
-      deployment.environment: local
+  main:
+    use-mdc-logging: true
 
 management:
   health:
@@ -98,6 +76,49 @@ management:
       client:
         requests:
           name: http-client-requests
+  # --- OpenTelemetry / OTLP ---
+  tracing:
+    enabled: true   # enable tracing with OpenTelemetry
+    propagation:
+      type: w3c
+      produce: w3c
+      consume: w3c
+    baggage:
+      enabled: true
+      # Specify which baggage fields should be propagated to downstream services
+      correlation:
+        # Also make baggage available in MDC for logging
+        fields:
+          - testBaggage
+          - addedBaggageByFilter
+          - addedBaggageByController
+          - addedBaggageByService
+        enabled: true
+      # Erlaubt das Empfangen des Headers "baggage: testBaggage=..." der im http request gesetzt wird
+      remote-fields:
+        - testBaggage
+      # KOPIERT den Wert aus dem Baggage in die Span-Labels (Attributes)
+      tag-fields:
+        - testBaggage
+        - addedBaggageByFilter
+        - addedBaggageByController
+        - addedBaggageByService
+    sampling:
+      probability: 1.0
+
+  otlp:
+    tracing:
+      endpoint: http://localhost:4318/v1/traces  # Collector
+      export:
+        enabled: false  # Traces to Collector
+    metrics:
+      export:
+        url: http://localhost:4318/v1/metrics     # Collector
+        enabled: false  # Metrics to Collector
+    logging:
+      endpoint: http://localhost:4318/v1/logs     # Collector
+      export:
+        enabled: false  # Logs to Collector
 
 application:
   activemq:
