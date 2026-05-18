@@ -29,14 +29,26 @@ otel:
     name: ${spring.application.name}
   traces:
     exporter: none
+    sampler:
+      arg: 1.0
   metrics:
     exporter: none
   logs:
     exporter: none
+  propagators:
+    - baggage
+    - tracecontext
   instrumentation:
     logback-mdc:
       add-baggage: true
       enabled: true
+    annotations:
+      enabled: true
+    micrometer:
+      enabled: true
+  resource:
+    attributes:
+      deployment.environment: local
 
 management:
   health:
