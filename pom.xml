@@ -140,6 +140,10 @@
       <groupId>org.apache.camel.springboot</groupId>
       <artifactId>camel-opentelemetry2-starter</artifactId>
     </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-aop</artifactId>
+    </dependency>
 
     <dependency>
       <groupId>net.logstash.logback</groupId>
@@ -285,19 +289,17 @@
               <exclude>target/**</exclude>
               <exclude>**/node_modules/**</exclude>
               <exclude>.github/**</exclude>
+              <exclude>.claude/**</exclude>
+              <exclude>.idea/**</exclude>
             </excludes>
-            <jackson>
-              <version>2.21.2</version>
-            </jackson>
+            <prettier/>
           </json>
           <yaml>
             <includes>
               <include>application.yaml</include>
               <include>application.yml</include>
             </includes>
-            <jackson>
-              <version>2.21.2</version>
-            </jackson>
+            <prettier/>
           </yaml>
           <shell>
             <includes>

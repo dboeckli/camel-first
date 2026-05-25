@@ -1,11 +1,8 @@
 package ch.dboeckli.camel.log;
 
-import io.micrometer.observation.Observation;
 import io.opentelemetry.api.OpenTelemetry;
-import io.opentelemetry.api.trace.Span;
-import io.opentelemetry.api.trace.StatusCode;
+import io.opentelemetry.api.trace.SpanKind;
 import io.opentelemetry.api.trace.Tracer;
-import io.opentelemetry.context.Scope;
 import io.opentelemetry.instrumentation.annotations.WithSpan;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.ContextRefreshedEvent;
@@ -34,21 +31,7 @@ public class ConfigChangeListener {
     }
 
     @EventListener
-    public void handleContextRefresh(ContextRefreshedEvent event) {
-        Span span = tracer.spanBuilder("config.change.listener").startSpan();
-        try (Scope _ = span.makeCurrent()) {
-            doHandleContextRefresh(event);
-        }
-        catch (Exception e) {
-            span.recordException(e);
-            span.setStatus(StatusCode.ERROR, e.getMessage());
-            throw e;
-        }
-        finally {
-            span.end();
-        }
-    }
-
+    @WithSpan(value = "config.change.listener", kind = SpanKind.INTERNAL)
     public void doHandleContextRefresh(ContextRefreshedEvent event) {
         final Environment env = event.getApplicationContext().getEnvironment();
         log.debug(LogMessage.RECEIVED_CONTEXT_REFRESH_EVENT.getMessage());
