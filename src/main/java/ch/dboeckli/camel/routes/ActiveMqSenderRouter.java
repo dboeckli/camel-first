@@ -1,9 +1,13 @@
 package ch.dboeckli.camel.routes;
 
+import io.opentelemetry.api.baggage.Baggage;
+import io.opentelemetry.context.Scope;
 import org.apache.camel.LoggingLevel;
 import org.apache.camel.builder.RouteBuilder;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+
+import java.util.UUID;
 
 @Component
 public class ActiveMqSenderRouter extends RouteBuilder {
@@ -17,8 +21,29 @@ public class ActiveMqSenderRouter extends RouteBuilder {
 
     @Override
     public void configure() {
-        from("timer:" + ACTIVE_MQ_ROUTER_NAME + "?period=10000&delay=2000") // timer
-                                                                            // endpoint
+        // timer endpoint
+        from("timer:" + ACTIVE_MQ_ROUTER_NAME + "?period=10000&delay=2000")
+
+            .process(exchange -> {
+                Scope scope = Baggage.current().toBuilder().put("flow.id", "1234").build().makeCurrent();
+                exchange.setProperty("BaggageScope", scope);
+            })
+
+            .onCompletion()
+            .process(exchange -> {
+                Scope baggageScope = exchange.getProperty("BaggageScope", Scope.class);
+                if (baggageScope != null) {
+                    baggageScope.close();
+                    exchange.removeProperty("BaggageScope");
+                }
+            })
+
+            .process(exchange -> {
+                String baggage = String.format("tenant.id=%s,flow.id=%s,message.id=%s", "guguseli", "12345",
+                        UUID.randomUUID());
+                exchange.getMessage().setHeader("baggage", baggage);
+            })
+
             .routeId(ACTIVE_MQ_ROUTER_ID)
             .transform()
             .constant("message-for-activemq")

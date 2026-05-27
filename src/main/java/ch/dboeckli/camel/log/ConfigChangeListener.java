@@ -1,8 +1,6 @@
 package ch.dboeckli.camel.log;
 
-import io.opentelemetry.api.OpenTelemetry;
 import io.opentelemetry.api.trace.SpanKind;
-import io.opentelemetry.api.trace.Tracer;
 import io.opentelemetry.instrumentation.annotations.WithSpan;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.ContextRefreshedEvent;
@@ -21,14 +19,8 @@ import java.util.stream.StreamSupport;
 @Slf4j
 public class ConfigChangeListener {
 
-    private final Tracer tracer;
-
     private static final List<String> PASSWORD_KEY_LIST = Arrays.asList("jwt.key-value", "password", "credentials",
             "secret");
-
-    public ConfigChangeListener(OpenTelemetry openTelemetry) {
-        this.tracer = openTelemetry.getTracer("config-change-listener");
-    }
 
     @EventListener
     @WithSpan(value = "config.change.listener", kind = SpanKind.INTERNAL)
