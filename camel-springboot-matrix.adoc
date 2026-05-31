@@ -1,5 +1,5 @@
 = Camel Spring Boot Compatibility Matrix
-:generated: 2026-05-26 07:27:34
+:generated: 2026-05-31 10:20:16
 :cutover: 4.15.0
 
 Generated: {generated}

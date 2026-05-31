@@ -1,8 +1,10 @@
 package ch.dboeckli.camel.routes;
 
 import io.opentelemetry.api.baggage.Baggage;
+import io.opentelemetry.api.baggage.BaggageBuilder;
 import io.opentelemetry.api.baggage.BaggageEntry;
 import io.opentelemetry.context.Scope;
+import org.apache.camel.Exchange;
 import org.apache.camel.LoggingLevel;
 import org.apache.camel.builder.RouteBuilder;
 import org.springframework.beans.factory.annotation.Value;
@@ -29,34 +31,55 @@ public class ActiveMqSenderRouter extends RouteBuilder {
         from("timer:" + ACTIVE_MQ_ROUTER_NAME + "?period=10000&delay=2000")
 
             .autoStartup(enabled)
-
-            .process(exchange -> {
-                Scope scope = Baggage.current().toBuilder().put("rootflow.id", "1234").build().makeCurrent();
-                exchange.setProperty("BaggageScope", scope);
-            })
-            .onCompletion()
-            .process(exchange -> {
-                Scope baggageScope = exchange.getProperty("BaggageScope", Scope.class);
-                if (baggageScope != null) {
-                    baggageScope.close();
-                    exchange.removeProperty("BaggageScope");
-                }
-            })
-
-            .process(exchange -> {
-                BaggageEntry baggageEntry = Baggage.current().getEntry("rootflow.id");
-                log.info("### baggageEntry: {}", baggageEntry);
-                String baggage = String.format("tenant.id=%s,flow.id=%s,message.id=%s", "guguseli", "12345",
-                        UUID.randomUUID());
-                exchange.getMessage().setHeader("baggage", baggage);
-                log.info("baggege has been set: {}", baggage);
-            })
-
             .routeId(ACTIVE_MQ_ROUTER_ID)
+
+            .process(exchange -> initBaggage(exchange, String.format("rootflow.id=%s", "abcd")))
+            .id("init-baggage")
+            .onCompletion()
+            .process(this::closeBaggage)
+            .id("close-baggage")
+
             .transform()
             .constant("message-for-activemq")
             .log(LoggingLevel.INFO, "Sending activemq message: ${body}")
+
+            .process(exchange -> addBaggage(exchange,
+                    String.format("tenant.id=%s,flow.id=%s,message.id=%s", "guguseli", "12345", UUID.randomUUID())))
+            .id("add-baggage")
+
             .to("jms:" + activeMqQueue);
+    }
+
+    private void initBaggage(Exchange exchange, String additionalBaggage) {
+        exchange.getMessage().setHeader("baggage", additionalBaggage);
+        Scope scope = Baggage.current().makeCurrent();
+        exchange.setProperty("BaggageScope", scope);
+        log.info("baggage initialized: {}", additionalBaggage);
+    }
+
+    private void closeBaggage(Exchange exchange) {
+        Scope baggageScope = exchange.getProperty("BaggageScope", Scope.class);
+        if (baggageScope != null) {
+            baggageScope.close();
+            exchange.removeProperty("BaggageScope");
+            log.info("baggage scope closed");
+        }
+    }
+
+    private void addBaggage(Exchange exchange, String additionalBaggage) {
+        String existingHeader = exchange.getMessage().getHeader("baggage", String.class);
+        log.info("existingHeader: {}", existingHeader);
+
+        String mergedHeader = (existingHeader == null || existingHeader.isBlank()) ? additionalBaggage
+                : existingHeader + "," + additionalBaggage;
+
+        log.info("mergedHeader: {}", mergedHeader);
+
+        exchange.getMessage().setHeader("baggage", mergedHeader);
+        log.info("baggage has been set");
+
+        Baggage current = Baggage.current();
+        current.forEach((k, e) -> log.info("Baggage → {} = '{}'", k, e.getValue()));
     }
 
 }
