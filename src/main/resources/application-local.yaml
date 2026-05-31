@@ -100,5 +100,17 @@ management:
           name: http-client-requests
 
 application:
+  camel:
+    my-first-camel-route:
+      enabled: true
+    my-second-camel-route:
+      enabled: true
+    my-third-camel-route:
+      enabled: true
+    my-forth-camel-route:
+      enabled: true
+    active-mq-route:
+      enabled: true
+
   activemq:
     queue: my-first-activemq-queue
