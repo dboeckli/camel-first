@@ -49,7 +49,7 @@
     <!-- for feature branches -->
     <docker.repo>local</docker.repo>
 
-    <camel-spring-boot.version>4.18.1</camel-spring-boot.version>
+    <camel-spring-boot.version>4.18.2</camel-spring-boot.version>
     <opentelemetry-instrumentation.version>2.28.1</opentelemetry-instrumentation.version>
 
     <logstash-logback.version>9.0</logstash-logback.version>
@@ -102,10 +102,6 @@
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-web</artifactId>
     </dependency>
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-aop</artifactId>
-    </dependency>
 
     <dependency>
       <groupId>org.apache.camel.springboot</groupId>
@@ -140,6 +136,10 @@
       <groupId>org.apache.camel.springboot</groupId>
       <artifactId>camel-opentelemetry2-starter</artifactId>
     </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-aop</artifactId>
+    </dependency>
 
     <dependency>
       <groupId>net.logstash.logback</groupId>
@@ -173,6 +173,11 @@
     <dependency>
       <groupId>org.apache.camel</groupId>
       <artifactId>camel-test-spring-junit5</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>io.opentelemetry</groupId>
+      <artifactId>opentelemetry-sdk-testing</artifactId>
       <scope>test</scope>
     </dependency>
 
@@ -285,19 +290,17 @@
               <exclude>target/**</exclude>
               <exclude>**/node_modules/**</exclude>
               <exclude>.github/**</exclude>
+              <exclude>.claude/**</exclude>
+              <exclude>.idea/**</exclude>
             </excludes>
-            <jackson>
-              <version>2.21.2</version>
-            </jackson>
+            <prettier/>
           </json>
           <yaml>
             <includes>
               <include>application.yaml</include>
               <include>application.yml</include>
             </includes>
-            <jackson>
-              <version>2.21.2</version>
-            </jackson>
+            <prettier/>
           </yaml>
           <shell>
             <includes>

@@ -3,6 +3,7 @@ package ch.dboeckli.camel.routes;
 import lombok.RequiredArgsConstructor;
 import org.apache.camel.LoggingLevel;
 import org.apache.camel.builder.RouteBuilder;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.nio.file.Files;
@@ -24,12 +25,19 @@ public class MyFileRouter extends RouteBuilder {
 
     public static final String OUTPUT_DIR = "files/output";
 
+    @Value("${application.camel.file-route.enabled}")
+    private boolean enabled;
+
     @Override
     public void configure() {
-        from("timer:" + LIST_FILES_ROUTE_NAME + "?repeatCount=1").routeId(LIST_FILES_ROUTE_ID).process(exchange -> {
-            String listing = listFilesInDir(INPUT_DIR);
-            exchange.getMessage().setBody(listing.isEmpty() ? "Keine Dateien gefunden." : listing);
-        }).log(LoggingLevel.INFO, "Eingangs-Dateiliste:\n${body}");
+
+        from("timer:" + LIST_FILES_ROUTE_NAME + "?repeatCount=1").routeId(LIST_FILES_ROUTE_ID)
+            .autoStartup(enabled)
+            .process(exchange -> {
+                String listing = listFilesInDir(INPUT_DIR);
+                exchange.getMessage().setBody(listing.isEmpty() ? "Keine Dateien gefunden." : listing);
+            })
+            .log(LoggingLevel.INFO, "Eingangs-Dateiliste:\n${body}");
 
         from("file:" + INPUT_DIR).routeId(COPY_FILES_ROUTE_ID)
             .log(LoggingLevel.INFO,

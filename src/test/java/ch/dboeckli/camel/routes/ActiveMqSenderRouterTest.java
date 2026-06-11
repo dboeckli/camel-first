@@ -16,10 +16,10 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.util.List;
+import java.util.Map;
 
 import static ch.dboeckli.camel.routes.ActiveMqSenderRouter.ACTIVE_MQ_ROUTER_ID;
-import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 @CamelSpringBootTest
 @SpringBootTest
@@ -60,6 +60,25 @@ class ActiveMqSenderRouterTest {
             .stream()
             .filter(r -> camelContext.getRouteController().getRouteStatus(r.getId()).isStarted())
             .toList();
+
+        Map<String, Object> headers = jmsMock.getReceivedExchanges().getFirst().getMessage().getHeaders();
+        log.info("### Received headers:");
+        headers.forEach((key, value) -> log.info("  {} = {}", key, value));
+
+        String baggage = jmsMock.getReceivedExchanges().getFirst().getMessage().getHeader("baggage", String.class);
+        log.info("Received baggage header: {}", baggage);
+
+        assertAll(() -> assertNotNull(baggage),
+                () -> assertTrue(baggage.contains("rootflow.id=abcd"), "missing rootflow.id, baggage was: " + baggage),
+                () -> assertTrue(baggage.contains("tenant.id=guguseli"), "missing tenant.id, baggage was: " + baggage),
+                () -> assertTrue(baggage.contains("flow.id=12345"), "missing flow.id, baggage was: " + baggage),
+                () -> assertTrue(baggage.contains("message.id="), "missing message.id, baggage was: " + baggage),
+                // UUID-Format prüfen
+                () -> assertTrue(baggage.matches(".*message\\.id=[0-9a-f-]{36}.*"),
+                        "message.id is not a valid UUID, baggage was: " + baggage));
+
+        assertAll(() -> assertNotNull(baggage), () -> assertTrue(baggage.contains("rootflow.id=abcd"),
+                "baggage should contain rootflow.id=abcd but was: " + baggage));
 
         assertAll(() -> assertEquals(1, startedRoutes.size()),
                 () -> assertEquals(ACTIVE_MQ_ROUTER_ID, startedRoutes.getFirst().getId()));

@@ -2,6 +2,7 @@ package ch.dboeckli.camel.routes;
 
 import lombok.RequiredArgsConstructor;
 import org.apache.camel.builder.RouteBuilder;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
@@ -10,6 +11,9 @@ import java.time.LocalDateTime;
 @RequiredArgsConstructor
 public class MyThirdTimerRouter extends RouteBuilder {
 
+    @Value("${application.camel.my-third-camel-route.enabled}")
+    private boolean enabled;
+
     public static final String MY_THIRD_ROUTE_ID = "my-third-timer-route";
 
     private static final String MY_THIRD_ROUTE_NAME = MyThirdTimerRouter.class.getSimpleName();
@@ -17,6 +21,9 @@ public class MyThirdTimerRouter extends RouteBuilder {
     @Override
     public void configure() {
         from("timer:" + MY_THIRD_ROUTE_NAME + "?period=5000&delay=2000").routeId(MY_THIRD_ROUTE_ID)
+
+            .autoStartup(enabled)
+
             .transform()
             .constant("Hello Camel! Time is: " + LocalDateTime.now()) // transform message
                                                                       // null to constant
