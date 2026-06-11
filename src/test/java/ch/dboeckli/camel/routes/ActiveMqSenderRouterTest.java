@@ -16,6 +16,7 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.util.List;
+import java.util.Map;
 
 import static ch.dboeckli.camel.routes.ActiveMqSenderRouter.ACTIVE_MQ_ROUTER_ID;
 import static org.junit.jupiter.api.Assertions.*;
@@ -60,8 +61,11 @@ class ActiveMqSenderRouterTest {
             .filter(r -> camelContext.getRouteController().getRouteStatus(r.getId()).isStarted())
             .toList();
 
-        String baggage = jmsMock.getReceivedExchanges().getFirst().getMessage().getHeader("baggage", String.class);
+        Map<String, Object> headers = jmsMock.getReceivedExchanges().getFirst().getMessage().getHeaders();
+        log.info("### Received headers:");
+        headers.forEach((key, value) -> log.info("  {} = {}", key, value));
 
+        String baggage = jmsMock.getReceivedExchanges().getFirst().getMessage().getHeader("baggage", String.class);
         log.info("Received baggage header: {}", baggage);
 
         assertAll(() -> assertNotNull(baggage),

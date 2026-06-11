@@ -5,7 +5,7 @@
     <log_file alias="spring-ecs.log" path="$PROJECT_DIR$/target/logs/spring-ecs.log" show_all="true" />
     <module name="camel-first" />
     <option name="SPRING_BOOT_MAIN_CLASS" value="ch.dboeckli.camel.FirstCamelApplication" />
-    <option name="VM_PARAMETERS" value="-Dotel.java.global-autoconfigure.enabled=true -Dotel.traces.exporter=none -Dotel.metrics.exporter=none -Dotel.logs.exporter=none -Dapplication.camel.my-first-camel-route.enabled=false -Dapplication.camel.my-second-camel-route.enabled=false -Dapplication.camel.my-third-camel-route.enabled=false -Dapplication.camel.my-forth-camel-route.enabled=false -Dapplication.camel.active-mq-route.enabled=true" />
+    <option name="VM_PARAMETERS" value="-Dotel.java.global-autoconfigure.enabled=true -Dotel.service.name=camel-first -Dotel.metrics.exporter=none -Dotel.logs.exporter=none -Dapplication.camel.my-first-camel-route.enabled=false -Dapplication.camel.my-second-camel-route.enabled=false -Dapplication.camel.my-third-camel-route.enabled=false -Dapplication.camel.my-forth-camel-route.enabled=false -Dapplication.camel.active-mq-route.enabled=true" />
     <method v="2">
       <option name="Make" enabled="true" />
     </method>

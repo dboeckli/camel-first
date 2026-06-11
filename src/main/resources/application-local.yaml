@@ -18,6 +18,7 @@ camel:
   opentelemetry2:
     enabled: true
     traceProcessors: true
+    traceHeadersInclusion: true
   health:
     enabled: true
     routes-enabled: true
@@ -26,9 +27,12 @@ camel:
 
 otel:
   service:
-    name: ${spring.application.name}
+    name: camel-first
+  exporter:
+    otlp:
+      endpoint: http://localhost:4318
   traces:
-    exporter: none
+    exporter: otlp
     sampler:
       arg: 1.0
   metrics:
@@ -88,6 +92,14 @@ management:
     recording:
       enabled: true
       include: request_headers, response_headers, session_id, time_taken
+  tracing:
+    enabled: true   # enable tracing
+  # export to OTel Collector ---
+  otlp:
+    tracing:
+      endpoint: http://localhost:4318/v1/traces
+      export:
+        enabled: false
   observations:
     annotations:
       enabled: true
@@ -110,6 +122,8 @@ application:
     my-forth-camel-route:
       enabled: true
     active-mq-route:
+      enabled: true
+    file-route:
       enabled: true
 
   activemq:

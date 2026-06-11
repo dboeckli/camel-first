@@ -1,8 +1,6 @@
 package ch.dboeckli.camel.routes;
 
 import io.opentelemetry.api.baggage.Baggage;
-import io.opentelemetry.api.baggage.BaggageBuilder;
-import io.opentelemetry.api.baggage.BaggageEntry;
 import io.opentelemetry.context.Scope;
 import org.apache.camel.Exchange;
 import org.apache.camel.LoggingLevel;
@@ -35,19 +33,27 @@ public class ActiveMqSenderRouter extends RouteBuilder {
 
             .process(exchange -> initBaggage(exchange, String.format("rootflow.id=%s", "abcd")))
             .id("init-baggage")
+
             .onCompletion()
+            .id("activeMqSenderOnCompletion")
+
             .process(this::closeBaggage)
-            .id("close-baggage")
+            .id("close-baggage-on-completion")
+            // .end()
 
             .transform()
             .constant("message-for-activemq")
+            .id("transform-activemq-message")
+
             .log(LoggingLevel.INFO, "Sending activemq message: ${body}")
+            .id("log-activemq-message")
 
             .process(exchange -> addBaggage(exchange,
                     String.format("tenant.id=%s,flow.id=%s,message.id=%s", "guguseli", "12345", UUID.randomUUID())))
             .id("add-baggage")
 
-            .to("jms:" + activeMqQueue);
+            .to("jms:" + activeMqQueue)
+            .id("send-to-activemq");
     }
 
     private void initBaggage(Exchange exchange, String additionalBaggage) {
@@ -79,7 +85,7 @@ public class ActiveMqSenderRouter extends RouteBuilder {
         log.info("baggage has been set");
 
         Baggage current = Baggage.current();
-        current.forEach((k, e) -> log.info("Baggage → {} = '{}'", k, e.getValue()));
+        current.forEach((k, e) -> log.info("### Baggage → {} = '{}'", k, e.getValue()));
     }
 
 }

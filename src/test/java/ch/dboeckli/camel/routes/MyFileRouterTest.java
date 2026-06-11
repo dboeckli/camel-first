@@ -30,7 +30,11 @@ import static ch.dboeckli.camel.routes.MyFileRouter.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @CamelSpringBootTest
-@SpringBootTest
+@SpringBootTest(properties = { "spring.docker.compose.enabled=true", "spring.docker.compose.skip.in-tests=false",
+        "spring.docker.compose.file=compose-with-mq.yaml", "application.camel.my-first-camel-route.enabled=false",
+        "application.camel.my-second-camel-route.enabled=false", "application.camel.my-third-camel-route.enabled=false",
+        "application.camel.my-forth-camel-route.enabled=false", "application.camel.active-mq-route.enabled=false",
+        "application.camel.file-route.enabled=true" })
 @ActiveProfiles("local")
 @DirtiesContext
 @UseAdviceWith
@@ -73,7 +77,6 @@ class MyFileRouterTest {
         outputMock.expectedHeaderValuesReceivedInAnyOrder(Exchange.FILE_NAME, expectedNames);
 
         outputMock.allMessages().body().isNotNull();
-
         outputMock.assertIsSatisfied();
 
         Awaitility.await()
@@ -130,13 +133,18 @@ class MyFileRouterTest {
         List<String> expectedFileNames = listRegularFileNames(FILES_PATH);
         Awaitility.await().atMost(Duration.ofSeconds(3)).pollInterval(Duration.ofMillis(100)).untilAsserted(() -> {
             List<String> actualFileNames = listRegularFileNames(INPUT_PATH);
-            org.assertj.core.api.Assertions.assertThat(actualFileNames).containsAll(expectedFileNames);
+            assertThat(actualFileNames)
+                .as("Expected file names \n%s to be present in actual file names \n%s", expectedFileNames,
+                        actualFileNames)
+                .containsAll(expectedFileNames);
         });
     }
 
     private List<String> listRegularFileNames(Path path) throws Exception {
-        if (!Files.exists(path))
+        if (!Files.exists(path)) {
+            log.info("Path {} does not exist", path);
             return java.util.List.of();
+        }
         try (Stream<Path> pathStream = Files.list(path)) {
             return pathStream.filter(Files::isRegularFile)
                 .map(foundPath -> foundPath.getFileName().toString())
