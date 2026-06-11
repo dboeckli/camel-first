@@ -39,11 +39,19 @@ public class ActiveMqSenderRouter extends RouteBuilder {
 
             .process(this::closeBaggage)
             .id("close-baggage-on-completion")
-            // .end()
-
             .transform()
             .constant("message-for-activemq")
             .id("transform-activemq-message")
+            // .end()
+            // NOTE: .end() is commented out because baggage propagation in Camel 4.18.2
+            // (LTS) has limitations.
+            // OpenTelemetry baggage is not fully propagated across async boundaries.
+            // See:
+            // https://camel.apache.org/components/next/others/opentelemetry2.html#_baggage_customization.
+            // This docu is for the pre-release version.
+            // Related issue: https://issues.apache.org/jira/browse/CAMEL-23349
+            // Fix not available in 4.18.x LTS line. Upgrade to next LTS version when
+            // available.
 
             .log(LoggingLevel.INFO, "Sending activemq message: ${body}")
             .id("log-activemq-message")

@@ -28,6 +28,7 @@ import static io.opentelemetry.api.GlobalOpenTelemetry.resetForTest;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @CamelSpringBootTest
 @SpringBootTest(properties = { "otel.traces.exporter=none", "otel.metrics.exporter=none", "otel.logs.exporter=none",
@@ -109,11 +110,44 @@ public class ActiveMqSenderRouterTraceIT {
         Exchange exchange = await().atMost(20, TimeUnit.SECONDS)
             .until(() -> consumerTemplate.receive("jms:" + activeMqQueue, 1000), Objects::nonNull);
 
-        Message in = exchange.getIn();
+        assertBodyAndHeader(exchange.getIn(), expectedTraceId);
+    }
 
+    private void assertBodyAndHeader(Message in, String expectedTraceId) {
         log.info("### Queue Message Body: {}", in.getBody(String.class));
         log.info("### Queue Message Headers:");
         in.getHeaders().forEach((key, value) -> log.info("###   Header - {} = {}", key, value));
+
+        assertEquals("message-for-activemq", in.getBody(String.class));
+
+        String baggage = in.getHeader("baggage", String.class);
+        String traceparent = in.getHeader("traceparent", String.class);
+
+        assertAll(
+                // Baggage Header Assertions
+                () -> assertThat(baggage).as("Baggage sollte existieren").isNotNull(),
+
+                () -> assertThat(baggage).as("Baggage sollte camelScope=true enthalten").contains("camelScope=true"),
+
+                () -> assertThat(baggage).as("Baggage sollte flow.id=12345 enthalten").contains("flow.id=12345"),
+
+                () -> assertThat(baggage).as("Baggage sollte rootflow.id=abcd enthalten").contains("rootflow.id=abcd"),
+
+                () -> assertThat(baggage).as("Baggage sollte tenant.id=guguseli enthalten")
+                    .contains("tenant.id=guguseli"),
+
+                () -> assertThat(baggage).as("Baggage sollte gültige UUID für message.id enthalten")
+                    .matches(".*message\\.id=[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}.*"),
+
+                // Traceparent Header Assertions
+                () -> assertThat(traceparent).as("Traceparent sollte existieren").isNotNull(),
+
+                () -> assertThat(traceparent)
+                    .as("Traceparent sollte W3C Trace Context Format sein: 00-{traceId}-{spanId}-{flags}")
+                    .matches("00-[a-f0-9]{32}-[a-f0-9]{16}-\\d{2}"),
+
+                () -> assertThat(traceparent).as("Traceparent sollte mit expectedTraceId starten")
+                    .startsWith("00-" + expectedTraceId));
     }
 
 }
