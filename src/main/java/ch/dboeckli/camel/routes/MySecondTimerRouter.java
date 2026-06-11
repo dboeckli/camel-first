@@ -4,11 +4,15 @@ import ch.dboeckli.camel.routes.util.CurrentTime;
 import lombok.RequiredArgsConstructor;
 import org.apache.camel.LoggingLevel;
 import org.apache.camel.builder.RouteBuilder;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
 public class MySecondTimerRouter extends RouteBuilder {
+
+    @Value("${application.camel.my-second-camel-route.enabled}")
+    private boolean enabled;
 
     private final CurrentTime currentTime;
 
@@ -19,6 +23,8 @@ public class MySecondTimerRouter extends RouteBuilder {
     @Override
     public void configure() {
         from("timer:" + MY_SECOND_ROUTE_NAME + "?period=5000&delay=2000").routeId(MY_SECOND_ROUTE_ID)
+
+            .autoStartup(enabled)
 
             .log(LoggingLevel.INFO, MY_SECOND_ROUTE_NAME, "# body before transform is: ${body}")
             .transform()

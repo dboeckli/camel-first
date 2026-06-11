@@ -5,7 +5,7 @@
     <log_file alias="spring-ecs.log" path="$PROJECT_DIR$/target/logs/spring-ecs.log" show_all="true" />
     <module name="camel-first" />
     <option name="SPRING_BOOT_MAIN_CLASS" value="ch.dboeckli.camel.FirstCamelApplication" />
-    <option name="VM_PARAMETERS" value="-Dotel.java.global-autoconfigure.enabled=true -Dotel.traces.exporter=none -Dotel.metrics.exporter=none -Dotel.logs.exporter=none" />
+    <option name="VM_PARAMETERS" value="-Dotel.java.global-autoconfigure.enabled=true -Dotel.metrics.exporter=none -Dotel.logs.exporter=none" />
     <method v="2">
       <option name="Make" enabled="true" />
     </method>

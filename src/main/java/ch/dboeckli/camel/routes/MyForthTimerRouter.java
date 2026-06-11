@@ -1,12 +1,16 @@
 package ch.dboeckli.camel.routes;
 
 import org.apache.camel.builder.RouteBuilder;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 
 @Component
 public class MyForthTimerRouter extends RouteBuilder {
+
+    @Value("${application.camel.my-forth-camel-route.enabled}")
+    private boolean enabled;
 
     public static final String MY_FORTH_ROUTE_ID = "my-forth-timer-route";
 
@@ -15,6 +19,9 @@ public class MyForthTimerRouter extends RouteBuilder {
     @Override
     public void configure() {
         from("timer:" + MY_FORTH_ROUTE_NAME + "?period=5000&delay=2000").routeId(MY_FORTH_ROUTE_ID)
+
+            .autoStartup(enabled)
+
             .process(exchange -> exchange.getIn().setBody("Hello Camel! Time is: " + LocalDateTime.now()))
             .to("log:info"); // log endpoint
     }
