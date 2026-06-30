@@ -49,7 +49,7 @@
     <!-- for feature branches -->
     <docker.repo>local</docker.repo>
 
-    <camel-spring-boot.version>4.18.2</camel-spring-boot.version>
+    <camel-spring-boot.version>4.20.0</camel-spring-boot.version>
     <opentelemetry-instrumentation.version>2.29.0</opentelemetry-instrumentation.version>
 
     <logstash-logback.version>9.0</logstash-logback.version>
