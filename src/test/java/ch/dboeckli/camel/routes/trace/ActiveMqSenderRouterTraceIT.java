@@ -101,7 +101,8 @@ public class ActiveMqSenderRouterTraceIT {
                 () -> assertThat(spans).allSatisfy(span -> {
                     if (span.getName().equals("my-first-activemq-queue")) {
                         assertThat(span.getKind().name()).isEqualTo("PRODUCER");
-                    } else {
+                    }
+                    else {
                         assertThat(span.getKind().name()).isEqualTo("INTERNAL");
                     }
 
