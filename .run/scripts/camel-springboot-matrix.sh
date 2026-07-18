@@ -14,7 +14,7 @@ RELEASES_URL="https://camel.apache.org/releases/"
 
 MIN_VERSION="${1:-3.0.0}"
 MAX_VERSION="${2:-99.99.99}"
-OUTPUT_ADOC="camel-springboot-matrix.adoc"
+OUTPUT_ADOC="target/camel-springboot-matrix.adoc"
 
 ver_to_int() {
     echo "$1" | awk -F. '{ printf "%d%03d%03d", $1, $2, $3 }'

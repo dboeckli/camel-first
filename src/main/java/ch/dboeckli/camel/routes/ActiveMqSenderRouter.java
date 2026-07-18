@@ -50,8 +50,8 @@ public class ActiveMqSenderRouter extends RouteBuilder {
             // https://camel.apache.org/components/next/others/opentelemetry2.html#_baggage_customization.
             // This docu is for the pre-release version.
             // Related issue: https://issues.apache.org/jira/browse/CAMEL-23349
-            // Fix not available in 4.18.x LTS line. Upgrade to next LTS version when
-            // available.
+            // Fix not available in 4.18.x LTS line.
+            // TODO: Upgrade to next LTS version when available.
 
             .log(LoggingLevel.INFO, "Sending activemq message: ${body}")
             .id("log-activemq-message")
