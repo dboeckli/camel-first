@@ -99,7 +99,12 @@ public class ActiveMqSenderRouterTraceIT {
 
                 // Alle Spans INTERNAL und UNSET
                 () -> assertThat(spans).allSatisfy(span -> {
-                    assertThat(span.getKind().name()).isEqualTo("INTERNAL");
+                    if (span.getName().equals("my-first-activemq-queue")) {
+                        assertThat(span.getKind().name()).isEqualTo("PRODUCER");
+                    } else {
+                        assertThat(span.getKind().name()).isEqualTo("INTERNAL");
+                    }
+
                     assertThat(span.getStatus().getStatusCode().name()).isEqualTo("UNSET");
                     assertThat(span.hasEnded()).isTrue();
                 }),
