@@ -86,7 +86,7 @@ services:
     restart: unless-stopped
 
   apm-server:
-    image: docker.elastic.co/apm/apm-server:9.4.3
+    image: docker.elastic.co/apm/apm-server:9.4.4
     container_name: apm-server
     depends_on:
       - elasticsearch
