@@ -220,3 +220,27 @@ Contributions to improve this template are welcome. Please follow the standard G
 3. Commit your changes
 4. Push to the branch
 5. Create a new Pull Request
+
+## Sandbox
+
+Development in an isolated Docker sandbox via [opencode-sandbox-kit](https://github.com/dboeckli/opencode-sandbox-kit).
+Prerequisites: `sbx` CLI, secrets (`sbx secret set github` + `sbx secret set github-maven`), IntelliJ-MCP registration
+(`sbx mcp add idea --url http://localhost:64342/stream --skip-ssrf-check`).
+
+Start (PowerShell) — multiline, with `--static-mcp idea`, pinned template version and a **read-only host Maven cache**
+(no re-download of cached dependencies):
+
+```powershell
+sbx run opencode --name camel-first `
+    --static-mcp idea `
+    --kit "git+https://github.com/dboeckli/opencode-sandbox-kit.git#dir=opencode-agent" `
+    -t docker/sandbox-templates:opencode-docker-0.5.0 `
+    "C:\development\projects\camel-first" `
+    "$env:USERPROFILE\.kube:ro" `
+    "C:\development\maven-repo:ro"
+```
+
+Claude variant (Home): `sbx run claude --name camel-first --static-mcp idea --kit "git+https://github.com/dboeckli/opencode-sandbox-kit.git#dir=opencode-agent" -t docker/sandbox-templates:claude-code-docker-0.5.0 "C:\development\projects\camel-first" "C:\development\maven-repo:ro"`
+
+> **Sandbox quirk:** Before any `./mvnw` in the sandbox run `export npm_config_bin_links=false` (Spotless/prettier otherwise fails with EPERM on the mounted workspace).
+

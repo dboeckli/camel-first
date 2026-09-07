@@ -16,7 +16,7 @@ spec:
         {{- include "application-template.selectorLabels" . | nindent 8 }}
     spec:
       containers:
-        - name: {{ .Chart.Name }}
+        - name: @project.artifactId@
           image: "{{ .Values.image.registry }}/@project.artifactId@:{{ .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           env:
@@ -27,7 +27,7 @@ spec:
             - name: LOGGING_CONFIG
               value: classpath:logback-kube.xml
             - name: SPRING_ARTEMIS_BROKER_URL
-              value: "tcp://{{ .Release.Name }}-jms:61616"
+              value: "tcp://{{ .Values.jms.fullnameOverride }}:{{ .Values.jms.broker.port }}"
             - name: JAVA_TOOL_OPTIONS
               value: >-
                 -Dotel.java.global-autoconfigure.enabled=true

@@ -1,5 +1,5 @@
 global:
-  namespace: kbe-brewery-gateway
+  namespace: camel-first
 
 service:
   type: NodePort
