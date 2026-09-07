@@ -1,5 +1,5 @@
 apiVersion: v2
-name: kbe-brewery-gateway-jms
+name: camel-first-jms-chart
 description: A Helm subchart for jms
 type: application
 # Disable Sonar warning for invalid semver: This value is set by Maven filtering

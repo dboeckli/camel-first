@@ -1,14 +1,14 @@
 # Those values are set by Maven filtering
 # and will be replaced with a valid version number during the build process.
 apiVersion: v2
-name: @project.artifactId@
+name: @project.artifactId@-chart
 description: A Helm chart for Spring 6 Projects
 type: application
 version: @helm.chart.version@
-appVersion: @project.version@
+appVersion: @helm.chart.version@
 
 dependencies:
-  - name: kbe-brewery-gateway-jms
+  - name: camel-first-jms-chart
     alias: jms
     version: @helm.chart.version@
     repository: file://charts/jms
