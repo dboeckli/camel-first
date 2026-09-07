@@ -236,8 +236,10 @@ sbx run opencode --name camel-first `
     --kit "git+https://github.com/dboeckli/opencode-sandbox-kit.git#dir=opencode-agent" `
     -t docker/sandbox-templates:opencode-docker-0.5.0 `
     "C:\development\projects\camel-first" `
-    "$env:USERPROFILE\.kube:ro" `       # optional: Kubernetes (kubectl/helm in Docker Desktop cluster)
-    "C:\development\maven-repo:ro"      # read-only host Maven cache (opencode-sandbox-kit #87)
+    # optional: Kubernetes (kubectl/helm in Docker Desktop cluster)
+    "$env:USERPROFILE\.kube:ro" `
+    # read-only host Maven cache (opencode-sandbox-kit #87)
+    "C:\development\maven-repo:ro"
 ```
 
 Claude variant (Home): `sbx run claude --name camel-first --static-mcp idea --kit "git+https://github.com/dboeckli/opencode-sandbox-kit.git#dir=opencode-agent" -t docker/sandbox-templates:claude-code-docker-0.5.0 "C:\development\projects\camel-first" "C:\development\maven-repo:ro"`
