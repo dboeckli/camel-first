@@ -236,9 +236,7 @@ sbx run opencode --name camel-first `
     --kit "git+https://github.com/dboeckli/opencode-sandbox-kit.git#dir=opencode-agent" `
     -t docker/sandbox-templates:opencode-docker-0.5.0 `
     "C:\development\projects\camel-first" `
-    # optional: Kubernetes (kubectl/helm in Docker Desktop cluster)
     "$env:USERPROFILE\.kube:ro" `
-    # read-only host Maven cache (opencode-sandbox-kit #87)
     "C:\development\maven-repo:ro"
 ```
 
