@@ -311,7 +311,7 @@
               <exclude>**/node_modules/**</exclude>
             </excludes>
             <shfmt>
-              <version>3.13.0</version>
+              <version>3.13.1</version>
             </shfmt>
           </shell>
         </configuration>
