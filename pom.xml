@@ -279,6 +279,8 @@
             <excludes>
               <exclude>target/**</exclude>
               <exclude>**/node_modules/**</exclude>
+              <exclude>AGENTS.md</exclude>
+              <exclude>CLAUDE.md</exclude>
             </excludes>
             <flexmark/>
           </markdown>
