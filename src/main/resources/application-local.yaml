@@ -94,6 +94,24 @@ management:
       include: request_headers, response_headers, session_id, time_taken
   tracing:
     enabled: true   # enable tracing
+    propagation:
+      type: w3c
+      produce: w3c
+      consume: w3c
+    baggage:
+      enabled: true
+      # Specify which baggage fields should be propagated to downstream services
+      correlation:
+        # Also make baggage available in MDC for logging
+        fields:
+          - testBaggage
+        enabled: true
+      # Allows receiving the "baggage: testBaggage=..." header set in the http request
+      remote-fields:
+        - testBaggage
+      # COPIES the value from baggage into the span labels (attributes)
+      tag-fields:
+        - testBaggage
   # export to OTel Collector ---
   otlp:
     tracing:
@@ -128,3 +146,7 @@ application:
 
   activemq:
     queue: my-first-activemq-queue
+
+logging:
+  level:
+    org.springframework.web.filter.CommonsRequestLoggingFilter: DEBUG
