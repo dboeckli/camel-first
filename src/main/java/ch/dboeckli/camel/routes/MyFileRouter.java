@@ -33,10 +33,7 @@ public class MyFileRouter extends RouteBuilder {
 
         from("timer:" + LIST_FILES_ROUTE_NAME + "?repeatCount=1").routeId(LIST_FILES_ROUTE_ID)
             .autoStartup(enabled)
-            .process(exchange -> {
-                String listing = listFilesInDir(INPUT_DIR);
-                exchange.getMessage().setBody(listing.isEmpty() ? "Keine Dateien gefunden." : listing);
-            })
+            .process(exchange -> exchange.getMessage().setBody(buildListing(INPUT_DIR)))
             .log(LoggingLevel.INFO, "Eingangs-Dateiliste:\n${body}");
 
         from("file:" + INPUT_DIR).routeId(COPY_FILES_ROUTE_ID)
@@ -47,7 +44,12 @@ public class MyFileRouter extends RouteBuilder {
             .log(LoggingLevel.INFO, "Written: '${header.CamelFileName}' to ${header.CamelFilePath}");
     }
 
-    private String listFilesInDir(String dir) {
+    String buildListing(String dir) {
+        String listing = listFilesInDir(dir);
+        return listing.isEmpty() ? "Keine Dateien gefunden." : listing;
+    }
+
+    String listFilesInDir(String dir) {
         Path path = Path.of(dir);
         if (!Files.isDirectory(path)) {
             return "Verzeichnis nicht gefunden: " + dir;
@@ -63,7 +65,7 @@ public class MyFileRouter extends RouteBuilder {
         }
     }
 
-    private long safeSize(Path path) {
+    long safeSize(Path path) {
         try {
             return Files.size(path);
         }
