@@ -23,6 +23,10 @@ public class ActiveMqSenderRouter extends RouteBuilder {
 
     private static final String ACTIVE_MQ_ROUTER_NAME = ActiveMqSenderRouter.class.getSimpleName();
 
+    private static final String BAGGAGE_HEADER = "baggage";
+
+    private static final String BAGGAGE_SCOPE_PROPERTY = "BaggageScope";
+
     @Override
     public void configure() {
         // timer endpoint
@@ -51,7 +55,7 @@ public class ActiveMqSenderRouter extends RouteBuilder {
             // This docu is for the pre-release version.
             // Related issue: https://issues.apache.org/jira/browse/CAMEL-23349
             // Fix not available in 4.18.x LTS line.
-            // TODO: Upgrade to next LTS version when available.
+            // Upgrade to next LTS version when available.
 
             .log(LoggingLevel.INFO, "Sending activemq message: ${body}")
             .id("log-activemq-message")
@@ -65,23 +69,23 @@ public class ActiveMqSenderRouter extends RouteBuilder {
     }
 
     private void initBaggage(Exchange exchange, String additionalBaggage) {
-        exchange.getMessage().setHeader("baggage", additionalBaggage);
+        exchange.getMessage().setHeader(BAGGAGE_HEADER, additionalBaggage);
         Scope scope = Baggage.current().makeCurrent();
-        exchange.setProperty("BaggageScope", scope);
+        exchange.setProperty(BAGGAGE_SCOPE_PROPERTY, scope);
         log.info("baggage initialized: {}", additionalBaggage);
     }
 
     private void closeBaggage(Exchange exchange) {
-        Scope baggageScope = exchange.getProperty("BaggageScope", Scope.class);
+        Scope baggageScope = exchange.getProperty(BAGGAGE_SCOPE_PROPERTY, Scope.class);
         if (baggageScope != null) {
             baggageScope.close();
-            exchange.removeProperty("BaggageScope");
+            exchange.removeProperty(BAGGAGE_SCOPE_PROPERTY);
             log.info("baggage scope closed");
         }
     }
 
     private void addBaggage(Exchange exchange, String additionalBaggage) {
-        String existingHeader = exchange.getMessage().getHeader("baggage", String.class);
+        String existingHeader = exchange.getMessage().getHeader(BAGGAGE_HEADER, String.class);
         log.info("existingHeader: {}", existingHeader);
 
         String mergedHeader = (existingHeader == null || existingHeader.isBlank()) ? additionalBaggage
@@ -89,7 +93,7 @@ public class ActiveMqSenderRouter extends RouteBuilder {
 
         log.info("mergedHeader: {}", mergedHeader);
 
-        exchange.getMessage().setHeader("baggage", mergedHeader);
+        exchange.getMessage().setHeader(BAGGAGE_HEADER, mergedHeader);
         log.info("baggage has been set");
 
         Baggage current = Baggage.current();

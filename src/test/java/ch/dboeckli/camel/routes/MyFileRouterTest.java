@@ -23,7 +23,6 @@ import java.nio.file.StandardCopyOption;
 import java.time.Duration;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static ch.dboeckli.camel.routes.MyFileRouter.*;
@@ -148,7 +147,7 @@ class MyFileRouterTest {
         try (Stream<Path> pathStream = Files.list(path)) {
             return pathStream.filter(Files::isRegularFile)
                 .map(foundPath -> foundPath.getFileName().toString())
-                .collect(Collectors.toList());
+                .toList();
         }
     }
 

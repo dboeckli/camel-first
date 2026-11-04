@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 
 @Component
 public class MyForthTimerRouter extends RouteBuilder {
@@ -22,7 +23,8 @@ public class MyForthTimerRouter extends RouteBuilder {
 
             .autoStartup(enabled)
 
-            .process(exchange -> exchange.getIn().setBody("Hello Camel! Time is: " + LocalDateTime.now()))
+            .process(exchange -> exchange.getIn()
+                .setBody("Hello Camel! Time is: " + LocalDateTime.now(ZoneId.systemDefault())))
             .to("log:info"); // log endpoint
     }
 
