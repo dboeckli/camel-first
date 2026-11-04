@@ -67,9 +67,8 @@ public class ActiveMqSenderRouterTraceIT {
     @Test
     void hello_returnsHelloMessage() {
         // Erwartete Span-Namen in logischer Reihenfolge
-        List<String> expectedNames = List.of("timer", "activeMqSenderOnCompletion-onCompletion", "init-baggage-process",
-                "close-baggage-on-completion-process", "transform-activemq-message-transform",
-                "log-activemq-message-log", "add-baggage-process", "my-first-activemq-queue");
+        List<String> expectedNames = List.of("timer", "add-baggage-process", "transform-activemq-message-transform",
+                "log-activemq-message-log", "my-first-activemq-queue");
 
         await().atMost(20, TimeUnit.SECONDS)
             .pollInterval(200, TimeUnit.MILLISECONDS)

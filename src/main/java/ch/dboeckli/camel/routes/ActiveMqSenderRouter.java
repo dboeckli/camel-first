@@ -1,8 +1,5 @@
 package ch.dboeckli.camel.routes;
 
-import io.opentelemetry.api.baggage.Baggage;
-import io.opentelemetry.context.Scope;
-import org.apache.camel.Exchange;
 import org.apache.camel.LoggingLevel;
 import org.apache.camel.builder.RouteBuilder;
 import org.springframework.beans.factory.annotation.Value;
@@ -23,81 +20,35 @@ public class ActiveMqSenderRouter extends RouteBuilder {
 
     private static final String ACTIVE_MQ_ROUTER_NAME = ActiveMqSenderRouter.class.getSimpleName();
 
-    private static final String BAGGAGE_HEADER = "baggage";
-
-    private static final String BAGGAGE_SCOPE_PROPERTY = "BaggageScope";
+    private static final String BAGGAGE_PREFIX = "CamelBaggage_";
 
     @Override
     public void configure() {
-        // timer endpoint
         from("timer:" + ACTIVE_MQ_ROUTER_NAME + "?period=10000&delay=2000")
 
             .autoStartup(enabled)
             .routeId(ACTIVE_MQ_ROUTER_ID)
 
-            .process(exchange -> initBaggage(exchange, String.format("rootflow.id=%s", "abcd")))
-            .id("init-baggage")
+            // Camel's OTel tracer reads CamelBaggage_* exchange properties and propagates
+            // them as W3C baggage to the JMS producer (camel-opentelemetry2
+            // traceProcessors).
+            .process(exchange -> {
+                exchange.setProperty(BAGGAGE_PREFIX + "rootflow.id", "abcd");
+                exchange.setProperty(BAGGAGE_PREFIX + "tenant.id", "guguseli");
+                exchange.setProperty(BAGGAGE_PREFIX + "flow.id", "12345");
+                exchange.setProperty(BAGGAGE_PREFIX + "message.id", UUID.randomUUID().toString());
+            })
+            .id("add-baggage")
 
-            .onCompletion()
-            .id("activeMqSenderOnCompletion")
-
-            .process(this::closeBaggage)
-            .id("close-baggage-on-completion")
             .transform()
             .constant("message-for-activemq")
             .id("transform-activemq-message")
-            // .end()
-            // NOTE: .end() is commented out because baggage propagation in Camel 4.18.2
-            // (LTS) has limitations.
-            // OpenTelemetry baggage is not fully propagated across async boundaries.
-            // See:
-            // https://camel.apache.org/components/next/others/opentelemetry2.html#_baggage_customization.
-            // This docu is for the pre-release version.
-            // Related issue: https://issues.apache.org/jira/browse/CAMEL-23349
-            // Fix not available in 4.18.x LTS line.
-            // Upgrade to next LTS version when available.
 
             .log(LoggingLevel.INFO, "Sending activemq message: ${body}")
             .id("log-activemq-message")
 
-            .process(exchange -> addBaggage(exchange,
-                    String.format("tenant.id=%s,flow.id=%s,message.id=%s", "guguseli", "12345", UUID.randomUUID())))
-            .id("add-baggage")
-
             .to("jms:" + activeMqQueue)
             .id("send-to-activemq");
-    }
-
-    void initBaggage(Exchange exchange, String additionalBaggage) {
-        exchange.getMessage().setHeader(BAGGAGE_HEADER, additionalBaggage);
-        Scope scope = Baggage.current().makeCurrent();
-        exchange.setProperty(BAGGAGE_SCOPE_PROPERTY, scope);
-        log.info("baggage initialized: {}", additionalBaggage);
-    }
-
-    void closeBaggage(Exchange exchange) {
-        Scope baggageScope = exchange.getProperty(BAGGAGE_SCOPE_PROPERTY, Scope.class);
-        if (baggageScope != null) {
-            baggageScope.close();
-            exchange.removeProperty(BAGGAGE_SCOPE_PROPERTY);
-            log.info("baggage scope closed");
-        }
-    }
-
-    void addBaggage(Exchange exchange, String additionalBaggage) {
-        String existingHeader = exchange.getMessage().getHeader(BAGGAGE_HEADER, String.class);
-        log.info("existingHeader: {}", existingHeader);
-
-        String mergedHeader = (existingHeader == null || existingHeader.isBlank()) ? additionalBaggage
-                : existingHeader + "," + additionalBaggage;
-
-        log.info("mergedHeader: {}", mergedHeader);
-
-        exchange.getMessage().setHeader(BAGGAGE_HEADER, mergedHeader);
-        log.info("baggage has been set");
-
-        Baggage current = Baggage.current();
-        current.forEach((k, e) -> log.info("### Baggage → {} = '{}'", k, e.getValue()));
     }
 
 }
