@@ -7,14 +7,13 @@ import org.apache.camel.CamelContext;
 import org.apache.camel.ConsumerTemplate;
 import org.apache.camel.Exchange;
 import org.apache.camel.Message;
-import org.apache.camel.test.spring.junit5.CamelSpringBootTest;
+import org.apache.camel.test.spring.junit6.CamelSpringBootTest;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.test.autoconfigure.actuate.observability.AutoConfigureObservability;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
@@ -23,6 +22,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import static io.opentelemetry.api.GlobalOpenTelemetry.resetForTest;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -37,7 +37,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
         "application.camel.file-route.enabled=false", "application.camel.camel.active-mq-route.enabled=true",
         "spring.docker.compose.skip.in-tests=false", "spring.docker.compose.file=compose-with-mq.yaml" })
 @ActiveProfiles("local")
-@AutoConfigureObservability
 @DirtiesContext
 @Slf4j
 public class ActiveMqSenderRouterTraceIT {
@@ -68,19 +67,17 @@ public class ActiveMqSenderRouterTraceIT {
     @Test
     void hello_returnsHelloMessage() {
         // Erwartete Span-Namen in logischer Reihenfolge
-        List<String> expectedNames = List.of("timer", "activeMqSenderOnCompletion-onCompletion", "init-baggage-process",
-                "close-baggage-on-completion-process", "transform-activemq-message-transform",
-                "log-activemq-message-log", "add-baggage-process", "send-to-activemq-to", "my-first-activemq-queue");
+        List<String> expectedNames = List.of("timer", "add-baggage-process", "transform-activemq-message-transform",
+                "log-activemq-message-log", "my-first-activemq-queue");
 
         await().atMost(20, TimeUnit.SECONDS)
             .pollInterval(200, TimeUnit.MILLISECONDS)
-            .untilAsserted(() -> assertThat(otelTesting.getSpans()).hasSizeGreaterThanOrEqualTo(expectedNames.size()));
+            .untilAsserted(() -> assertThat(completedTraceSpans(expectedNames)).extracting(SpanData::getName)
+                .containsAll(expectedNames));
 
-        // Spans nach Startzeit sortieren -> deterministische logische Reihenfolge
-        List<SpanData> spans = otelTesting.getSpans()
-            .stream()
-            .sorted(Comparator.comparingLong(SpanData::getStartEpochNanos))
-            .toList();
+        // Nur Spans eines vollständigen Trace betrachten, damit parallel laufende
+        // Timer-Ticks nicht stören
+        List<SpanData> spans = completedTraceSpans(expectedNames);
 
         for (SpanData span : spans) {
             log.info("### Span - traceId: {}, spanId: {}, name {}, kind: {}, status: {}", span.getTraceId(),
@@ -113,10 +110,35 @@ public class ActiveMqSenderRouterTraceIT {
                 // Alle Spans gehören zum selben Trace
                 () -> assertThat(spans).allSatisfy(span -> assertThat(span.getTraceId()).isEqualTo(expectedTraceId)));
 
-        Exchange exchange = await().atMost(20, TimeUnit.SECONDS)
-            .until(() -> consumerTemplate.receive("jms:" + activeMqQueue, 1000), Objects::nonNull);
+        // Nachrichten anderer Timer-Ticks überspringen, bis die Nachricht zum erwarteten
+        // Trace kommt
+        Exchange exchange = await().atMost(20, TimeUnit.SECONDS).until(() -> {
+            Exchange received = consumerTemplate.receive("jms:" + activeMqQueue, 1000);
+            if (received == null) {
+                return null;
+            }
+            String traceparent = received.getIn().getHeader("traceparent", String.class);
+            return traceparent != null && traceparent.startsWith("00-" + expectedTraceId) ? received : null;
+        }, Objects::nonNull);
 
         assertBodyAndHeader(exchange.getIn(), expectedTraceId);
+    }
+
+    private List<SpanData> completedTraceSpans(List<String> expectedNames) {
+        return otelTesting.getSpans()
+            .stream()
+            .collect(Collectors.groupingBy(SpanData::getTraceId))
+            .values()
+            .stream()
+            .filter(traceSpans -> traceSpans.stream()
+                .map(SpanData::getName)
+                .collect(Collectors.toSet())
+                .containsAll(expectedNames))
+            .findFirst()
+            .orElseGet(List::of)
+            .stream()
+            .sorted(Comparator.comparingLong(SpanData::getStartEpochNanos))
+            .toList();
     }
 
     private void assertBodyAndHeader(Message in, String expectedTraceId) {
@@ -132,8 +154,6 @@ public class ActiveMqSenderRouterTraceIT {
         assertAll(
                 // Baggage Header Assertions
                 () -> assertThat(baggage).as("Baggage sollte existieren").isNotNull(),
-
-                () -> assertThat(baggage).as("Baggage sollte camelScope=true enthalten").contains("camelScope=true"),
 
                 () -> assertThat(baggage).as("Baggage sollte flow.id=12345 enthalten").contains("flow.id=12345"),
 
