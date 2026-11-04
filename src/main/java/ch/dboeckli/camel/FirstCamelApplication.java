@@ -1,5 +1,4 @@
 package ch.dboeckli.camel;
-// TODOS: RENAME PACKAGE
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.SpringApplication;

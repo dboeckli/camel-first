@@ -33,3 +33,6 @@ build/
 .vscode/
 /files/output/
 /files/input/
+
+### Review artifacts ###
+.review/
