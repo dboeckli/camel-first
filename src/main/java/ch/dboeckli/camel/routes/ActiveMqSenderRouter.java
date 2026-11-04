@@ -68,14 +68,14 @@ public class ActiveMqSenderRouter extends RouteBuilder {
             .id("send-to-activemq");
     }
 
-    private void initBaggage(Exchange exchange, String additionalBaggage) {
+    void initBaggage(Exchange exchange, String additionalBaggage) {
         exchange.getMessage().setHeader(BAGGAGE_HEADER, additionalBaggage);
         Scope scope = Baggage.current().makeCurrent();
         exchange.setProperty(BAGGAGE_SCOPE_PROPERTY, scope);
         log.info("baggage initialized: {}", additionalBaggage);
     }
 
-    private void closeBaggage(Exchange exchange) {
+    void closeBaggage(Exchange exchange) {
         Scope baggageScope = exchange.getProperty(BAGGAGE_SCOPE_PROPERTY, Scope.class);
         if (baggageScope != null) {
             baggageScope.close();
@@ -84,7 +84,7 @@ public class ActiveMqSenderRouter extends RouteBuilder {
         }
     }
 
-    private void addBaggage(Exchange exchange, String additionalBaggage) {
+    void addBaggage(Exchange exchange, String additionalBaggage) {
         String existingHeader = exchange.getMessage().getHeader(BAGGAGE_HEADER, String.class);
         log.info("existingHeader: {}", existingHeader);
 
