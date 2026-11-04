@@ -1,257 +1,200 @@
-# Spring Boot 6 Camel Course Project
+# camel-first — Apache Camel with Spring Boot
 
-Based on: https://www.udemy.com/course/apache-camel-framework-with-spring-boot
+A hands-on learning project for Apache Camel on Spring Boot. It collects small, focused routes that
+demonstrate message transformation, bean invocation, custom processors, JMS messaging, file
+processing, structured logging and observability.
 
-Active MQ console: http://localhost:8161/console
+|  Component   | Version |
+|--------------|---------|
+| Spring Boot  | 3.5.x   |
+| Java         | 25      |
+| Apache Camel | 4.18.x  |
+
+Based on the Udemy course
+[Apache Camel Framework with Spring Boot](https://www.udemy.com/course/apache-camel-framework-with-spring-boot).
+The course slides are in [doc/ApacheCamelPresentation.pdf](doc/ApacheCamelPresentation.pdf).
 
 ## Introduction
 
-The Camel Course Project is a hands‑on learning repository for Apache Camel on Spring Boot 6 (Java 21):
-- timer-driven routes for exploring message transformation, bean invocation, custom processors, and structured logging,
-- a file-processing flow that lists input files on startup, picks up files from files/input, writes them to files/output, and logs helpful metadata (file name, path, size),
-- health and operational insights via Spring Boot Actuator,
-- a fully automated CI pipeline (build, test, analysis, versioning, image publishing),
-- ready-to-use Kubernetes manifests and Helm charts, including kind-based validation in CI.
+All routes are plain Camel `RouteBuilder`s registered as Spring components. They are meant to be read
+and modified: each one shows a single concept, logs what it does, and can be enabled or disabled
+individually. The application also demonstrates production-relevant topics — health checks,
+request logging, metrics, distributed tracing with OpenTelemetry, and container/cluster deployment.
 
-You can run lessons locally, in containers, or in a cluster. Start by exploring the documentation, run the application, and use health/actuator endpoints to verify it works. The focus is on building robust routes, error handling and retries, idempotency, and operational readiness.
+## Architecture
+
+```mermaid
+graph LR
+    Client(["Client"])
+
+    subgraph App ["Spring Boot + Camel :8080"]
+        Camel["Application\n(timer, file, JMS routes)\nActuator: /actuator/**"]
+    end
+
+    subgraph Messaging ["Messaging"]
+        Artemis[("ActiveMQ Artemis\n:61616\nconsole :8161")]
+    end
+
+    subgraph Files ["File system"]
+        Input[/"files/input"/]
+        Output[/"files/output"/]
+        Logs[/"target/logs\nJSON + ECS"/]
+    end
+
+    subgraph Observability ["Observability (compose.yaml)"]
+        OTel["OTel Collector\n:4317 / :4318"]
+        Jaeger["Jaeger\n:16686"]
+        Zipkin["Zipkin\n:9411"]
+        Prometheus["Prometheus\n:9090"]
+        APM["Elastic APM Server\n:8200"]
+        ES[("Elasticsearch\n:9200")]
+        Kibana["Kibana\n:5601"]
+    end
+
+    Client -->|"HTTP"| Camel
+    Camel -->|"reads"| Input
+    Camel -->|"writes"| Output
+    Camel -->|"jms:queue"| Artemis
+    Camel -->|"JSON / ECS"| Logs
+    Camel -.->|"OTLP traces / metrics"| OTel
+    OTel -->|"traces"| Jaeger
+    OTel -->|"traces"| Zipkin
+    OTel -->|"metrics (:8889)"| Prometheus
+    OTel -->|"traces / metrics"| APM
+    APM --> ES
+    Kibana -->|"queries"| ES
+```
+
+The timer routes write to the log endpoint, `MyFileRouter` bridges `files/input` and
+`files/output`, and `ActiveMqSenderRouter` publishes to the Artemis queue. Traces and metrics are
+exported via OTLP to the collector, which fans them out to Jaeger, Zipkin, Prometheus and the
+Elastic stack (see `monitoring/`).
 
 ## Prerequisites
 
-- GitHub account
-- Git
-- JDK 21 or later
-- Maven
-- IntelliJ IDEA (recommended) or any preferred IDE
-- Docker account (for image publishing)
+- JDK 25
+- Docker (for the Artemis broker and the optional monitoring stack)
+- IntelliJ IDEA (recommended) or any IDE; the project ships with ready-to-use run configurations in `.run/`
 
-## Getting Started
+The Maven wrapper (`./mvnw`) is included, so no separate Maven installation is required.
 
-### 1. Project Setup
+## Run locally
 
-1. In GitHub, create a new project using this template.
-2. In the new project's Settings:
-   - Enable 'Automatically delete head branches'
-   - Enable 'Always suggest updating pull request branches'
-3. Set Branch Protection Rules similar to this template project. Do not Lock Master branch there.
-
-### 2. Local Development Setup
-
-1. Clone the newly created project.
-2. Configure Maven settings in your IDE:
-   - Point to a valid `settings.xml` for GitHub dependency resolution.
-   - Set local Maven repository outside of Microsoft's cloud (e.g., `C:\development\tools\maven-repo`).
-3. Create a feature branch for your changes.
-
-### 4. GitHub Configuration
-
-1. Add the following secrets in your GitHub project Action settings:
-   - `DOCKER_USER`
-   - `DOCKER_ACCESS_TOKEN`
-   - `SONAR_TOKEN`: a Sonar Token generated in https://sonarcloud.io. Sonar Analysis Method: Automatic Analysis disabled.
-   - `RELEASE_TOKEN`: A GitHub Personal Access Token with permissions to push to the master branch
-   - To create this token:
-     1. Go to GitHub Settings > Developer settings > Personal access tokens
-     2. Click "Generate new token" (classic)
-     3. Give it a descriptive name (e.g., "Release Token for [Your Project Name]")
-     4. Set the expiration as needed
-     5. Select at least these scopes: `repo`, `write:packages`
-     6. Generate the token and copy it immediately
-   - Add this token as a secret named `RELEASE_TOKEN` in your repository settings
-2. Add the following vars in your GitHub project Action settings:
-   - CI_USER and set value to dboeckli@gmail.com
-   - CI_USER_EMAIL set value to dboeckli@gmail.com
-3. Add the following secrets in your GitHub project Dependent Bot settings:
-   - `DOCKER_USER`
-   - `DOCKER_ACCESS_TOKEN`
-
-### 5. Build and Deployment
-
-1. Trigger a rebuild in GitHub Actions.
-2. Upon a successful build:
-   - A Docker image will be pushed to GitHub Packages and Docker Hub.
-   - Access your Docker Hub repository: https://hub.docker.com/repositories/domboeckli
-   - Change the Docker Hub image visibility from private to public to unlock it.
-
-### 6. Release
-
-To create a new release:
-
-1. Ensure you are on the main branch and it is up to date:
-2. Run the release workflow:
-
-- Go to your GitHub repository
-- Navigate to the "Actions" tab
-- Select the "Maven Release" workflow
-- Click "Run workflow"
-- Choose the main branch and click "Run workflow"
-
-3. The workflow will:
-
-- Check if you're on the main branch
-- Verify that the current version is a SNAPSHOT
-- Prepare the release (update versions, create tag)
-- Perform the release (build, test, and deploy)
-- Push changes back to the repository
-
-4. After the workflow completes successfully:
-
-- A new release tag will be created in your repository
-- The project version in pom.xml will be updated
-- A new Docker image with the release version will be pushed to Docker Hub
-
-5. Verify the release:
-
-- Check the releases page on GitHub
-- Confirm the new version in pom.xml on the main branch
-- Verify the new Docker image on Docker Hub
-
-Note: Ensure all required secrets (RELEASE_TOKEN, DOCKER_USER, DOCKER_ACCESS_TOKEN) are properly set in your GitHub repository settings before running the release workflow.
-
-## Deployment with Kubernetes
-
-To run maven filtering for destination target/k8s
+The `local` profile is required; it contains the broker connection and all route toggles:
 
 ```bash
-mvn clean install -DskipTests 
+./mvnw spring-boot:run -Dspring-boot.run.profiles=local
 ```
 
-Deployment goes into the default namespace.
-
-To deploy all resources:
+The `local` profile enables Spring Boot Docker Compose support, so the services in `compose.yaml`
+(Artemis plus the monitoring stack) are started automatically. To start only the broker and run the
+application without the rest of the stack:
 
 ```bash
+docker compose up -d jms
+./mvnw spring-boot:run -Dspring-boot.run.profiles=local \
+  -Dspring-boot.run.arguments=--spring.docker.compose.enabled=false
+```
+
+Useful endpoints:
+
+|            What             |                                   URL                                    |
+|-----------------------------|--------------------------------------------------------------------------|
+| Application                 | http://localhost:8080                                                    |
+| Actuator                    | http://localhost:8080/actuator                                           |
+| Health (readiness/liveness) | http://localhost:8080/actuator/health                                    |
+| Prometheus metrics          | http://localhost:8080/actuator/prometheus                                |
+| Artemis console             | http://localhost:8161/console (user `artemis`, password `simetraehcapa`) |
+| Artemis broker              | `tcp://localhost:61616`                                                  |
+
+Sample requests for all actuator endpoints are in [restRequest/actuator.http](restRequest/actuator.http).
+
+## Routes
+
+|         Route          |                   ID                   |                                    Shows                                    |
+|------------------------|----------------------------------------|-----------------------------------------------------------------------------|
+| `MyFirstTimerRouter`   | `my-first-timer-route`                 | Calling a bean for transformation and processing, plus a custom `Processor` |
+| `MySecondTimerRouter`  | `my-second-timer-route`                | `transform().method(...)` with a Spring bean                                |
+| `MyThirdTimerRouter`   | `my-third-timer-route`                 | `transform().constant(...)`                                                 |
+| `MyForthTimerRouter`   | `my-forth-timer-route`                 | Inline processor lambda in the DSL                                          |
+| `ActiveMqSenderRouter` | `active-mq-timer-route`                | Sending to a JMS queue, with OpenTelemetry baggage handling                 |
+| `MyFileRouter`         | `list-files-route`, `copy-files-route` | Listing `files/input` on startup and copying files to `files/output`        |
+
+The timer routes fire every five seconds (the ActiveMQ route every ten). The file route logs each
+picked-up file with name, path and size, then writes it to `files/output`; test files live in
+`files/` and are described in [files/README.md](files/README.md).
+
+## Configuration
+
+Active profile and route switches live in
+[src/main/resources/application-local.yaml](src/main/resources/application-local.yaml):
+
+```yaml
+application:
+  camel:
+    my-first-camel-route:
+      enabled: true
+    active-mq-route:
+      enabled: true
+    file-route:
+      enabled: true
+```
+
+The same keys can be overridden as JVM properties, e.g.
+`-Dapplication.camel.active-mq-route.enabled=false`. The `.run/` run configurations show working
+examples, including one that disables all timer routes.
+
+## Observability
+
+- Spring Boot Actuator exposes health, metrics, info, environment and HTTP exchange endpoints; the
+  `local` profile exposes all of them.
+- `RequestLoggingFilter` logs incoming requests (payload and headers) and excludes
+  `/actuator/health` by default.
+- OpenTelemetry tracing is configured in `application-local.yaml` (W3C trace context and baggage,
+  Logback MDC integration). The `compose.yaml` stack provides Jaeger (http://localhost:16686),
+  Zipkin (http://localhost:9411), Prometheus (http://localhost:9090), Elasticsearch/Kibana
+  (http://localhost:5601) and the OTel Collector.
+- Logback writes JSON logs to `target/logs/spring.log` and ECS-formatted logs to
+  `target/logs/spring-ecs.log`.
+
+## Tests
+
+```bash
+./mvnw test        # unit and integration tests
+./mvnw validate    # formatting checks (spring-javaformat, spotless, shfmt)
+```
+
+## Deployment
+
+Kubernetes manifests are generated by Maven filtering into `target/k8s`, the Helm chart lives in
+`helm-charts/`:
+
+```bash
+./mvnw clean install -DskipTests -Dskip.docker.build=true
 kubectl apply -f target/k8s/
 ```
 
-To remove all resources:
-
-```bash
-kubectl delete -f target/k8s/
-```
-
-Check
-
-```bash
-kubectl get deployments -o wide
-kubectl get pods -o wide
-```
-
-You can use the actuator rest call to verify via port 30080
-
-## Deployment with Helm
-
-Be aware that we are using a different namespace here (not default).
-
-To run maven filtering for destination target/helm
-
-```bash
-mvn clean install -DskipTests 
-```
-
-Go to the directory where the tgz file has been created after 'mvn install'
-
-```powershell
-cd target/helm/repo
-```
-
-unpack
-
-```powershell
-$file = Get-ChildItem -Filter *.tgz | Select-Object -First 1
-tar -xvf $file.Name
-```
-
-install
-
-```powershell
-$APPLICATION_NAME = Get-ChildItem -Directory | Where-Object { $_.LastWriteTime -ge $file.LastWriteTime } | Select-Object -ExpandProperty Name
-helm upgrade --install $APPLICATION_NAME ./$APPLICATION_NAME --namespace camel-first --create-namespace --wait --timeout 8m --debug --render-subchart-notes
-```
-
-show logs
-
-```powershell
-kubectl get pods -l app.kubernetes.io/name=$APPLICATION_NAME -n camel-first
-```
-
-replace $POD with pods from the command above
-
-```powershell
-kubectl logs $POD -n camel-first --all-containers
-```
-
-test
-
-```powershell
-helm test $APPLICATION_NAME --namespace camel-first --logs
-```
-
-uninstall
-
-```powershell
-helm uninstall $APPLICATION_NAME --namespace camel-first
-```
-
-delete all
-
-```powershell
-kubectl delete all --all -n camel-first
-```
-
-create busybox sidecar
-
-```powershell
-kubectl run busybox-test --rm -it --image=busybox:latest --namespace=camel-first --command -- sh
-```
-
-You can use the actuator rest call to verify via port 30080
-
-## Additional Information
-
-- The initial build in GitHub may fail. Follow the steps above to resolve any issues.
-- Ensure all TODOs are addressed before considering the setup complete.
-- For any issues or improvements, please create a GitHub issue in the project repository.
-
-## Contributing
-
-Contributions to improve this template are welcome. Please follow the standard GitHub flow:
-1. Fork the repository
-2. Create a feature branch
-3. Commit your changes
-4. Push to the branch
-5. Create a new Pull Request
+For the Helm-based deployment (namespace `camel-first`, actuator on port 30080) see
+`helm-charts/` and the release rules in [pom.xml](pom.xml). CI/CD runs through the workflows in
+[.github/workflows](.github/workflows): `maven-build.yml` (build, test, analysis, image publishing),
+`release.yml` and `deploy-and-test-cluster.yml`.
 
 ## Sandbox
 
-Development in an isolated Docker sandbox via [opencode-sandbox-kit](https://github.com/dboeckli/opencode-sandbox-kit).
-Prerequisites: `sbx` CLI, secrets (`sbx secret set github` + `sbx secret set github-maven`), IntelliJ-MCP registration
-(`sbx mcp add idea --url http://localhost:64342/stream --skip-ssrf-check`).
+Development in an isolated Docker sandbox via
+[opencode-sandbox-kit](https://github.com/dboeckli/opencode-sandbox-kit).
+Prerequisites: `sbx` CLI, secrets (`sbx secret set github` + `sbx secret set github-maven`),
+IntelliJ-MCP registration (`sbx mcp add idea --url http://localhost:64342/stream --skip-ssrf-check`).
 
-Start (PowerShell) — multiline, with `--static-mcp idea`, pinned template version and a **read-only host Maven cache**
-(no re-download of cached dependencies):
+Start (PowerShell) with a read-only host Maven cache (no re-download of cached dependencies):
 
 ```powershell
 sbx run opencode `
-    --kit "git+https://github.com/dboeckli/opencode-sandbox-kit.git#dir=opencode-agent" `
-    --template docker/sandbox-templates:opencode-docker-0.5.0 `
-    --no-share-skills `
-    --static-mcp idea `
-    . `
-    "$env:USERPROFILE\.kube:ro" `
-    "C:\development\maven-repo:ro"
-```
-
-Claude variant (Home):
-
-```powershell
-sbx run claude `
-    --kit "git+https://github.com/dboeckli/opencode-sandbox-kit.git#dir=opencode-agent" `
-    --template docker/sandbox-templates:claude-code-docker-0.5.0 `
-    --no-share-skills `
-    --static-mcp idea `
+    --kit "git+https://codeberg.org/dboeckli/opencode-sandbox-kit.git#dir=opencode-agent" `
+    --template docker.io/domboeckli/sbx-opencode-tooling:latest `
+    --skills=off `
+    --static-mcp idea,k8s,docker `
     . `
     "C:\development\maven-repo:ro"
 ```
-
-> **Sandbox quirk:** Before any `./mvnw` in the sandbox run `export npm_config_bin_links=false` (Spotless/prettier otherwise fails with EPERM on the mounted workspace).
 

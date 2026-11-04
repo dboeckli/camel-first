@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 
 @Component
 @RequiredArgsConstructor
@@ -25,8 +26,7 @@ public class MyThirdTimerRouter extends RouteBuilder {
             .autoStartup(enabled)
 
             .transform()
-            .constant("Hello Camel! Time is: " + LocalDateTime.now()) // transform message
-                                                                      // null to constant
+            .constant("Hello Camel! Time is: " + LocalDateTime.now(ZoneId.systemDefault()))
             .to("log:info"); // log endpoint
     }
 

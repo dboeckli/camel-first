@@ -67,7 +67,7 @@ public class MyFileRouter extends RouteBuilder {
         try {
             return Files.size(path);
         }
-        catch (Exception e) {
+        catch (Exception _) {
             return -1L;
         }
     }
