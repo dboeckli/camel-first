@@ -6,9 +6,9 @@ processing, structured logging and observability.
 
 |  Component   | Version |
 |--------------|---------|
-| Spring Boot  | 3.5.x   |
+| Spring Boot  | 4.1.x   |
 | Java         | 25      |
-| Apache Camel | 4.18.x  |
+| Apache Camel | 4.22.x  |
 
 Based on the Udemy course
 [Apache Camel Framework with Spring Boot](https://www.udemy.com/course/apache-camel-framework-with-spring-boot).
