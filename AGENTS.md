@@ -15,6 +15,9 @@ Processor, strukturiertes Logging, Actuator. Siehe README.md für Konzept und Be
 
 ## Sandbox
 
+- CI pinnt Helm `v4.3.2` via `azure/setup-helm@v5.1.0` vor dem ersten Helm-Aufruf (Runner-Default
+  ist Helm 3). Die Sandbox liefert Helm 4 als `helm`; `-Dhelm.executable=helm4` ist nicht mehr nötig.
+
 - Kit: opencode-sandbox-kit (README → Sandbox). Sandbox-Quirk: vor jedem `./mvnw`
   `export npm_config_bin_links=false` (Spotless/prettier → EPERM im Mount).
 - Maven-Auflösung nutzt bei Mount `C:\development\maven-repo:ro` den Host-Cache. Nur echte Maven-Builds sind
